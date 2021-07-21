@@ -1,6 +1,21 @@
 #include "generic.h"
 #include <stdlib.h>
+#include "vector.h"
 
-double *set_define (double source[], int size, int (*function)(int));
+#ifndef SET
+/*
+typedef struct _set {
+	double *val;
+	int size;
+} set;
+*/
+typedef vec set;
+#endif
 
-#define SET_ENUMS 0
+set set_random (int size);
+set set_empty (int size);
+set set_define (double *source, int size, bool (*function)(double));
+bool set_contains (set set, double target);
+set set_union (set set0, set set1);
+
+#define SET 0

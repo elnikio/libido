@@ -1,8 +1,8 @@
 #include <stdio.h>
-//#include <libido/vector.h>
-//#include <libido/arithmetic.h>
-#include "vector.h"
-#include "arithmetic.h"
+#include <libido/vector.h>
+#include <libido/arithmetic.h>
+//#include "vector.h"
+//#include "arithmetic.h"
 
 int main() {
 	printf ("This is awesome! Yolo!\n");

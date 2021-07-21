@@ -8,7 +8,6 @@ P(T) = {{}, {a}, {b}, {c}, {a,b}, {a,c}, {b,c}, {a,b,c}}
 T - alphabet of P(T) - set of all elements, composing the elements of P(T)
 P(T) - language of T - set of all sets, comprised of elements of T
 B(P(T)) = {a, b, c}
-/*
 T = {a, b, c}
 P(T) = {{}, {a}, {b}, {c}, {a,b}, {a,c}, {b,c}, {a,b,c}}
 T - alphabet of P(T) - set of all elements, composing the elements of P(T)
@@ -22,13 +21,14 @@ People think that the economy is some magic horn of plenty - that it just spits 
 */
 
 // test program :
+/*
 int main () {
 	char stringo[] = "legit engineer.";
 	clist chars = clist_fill (stringo);
 	clist_print (&chars, DIAGRAM);
 	printf ("size = %d\n", clist_size (&chars));
 	printf ("el 14 = %c\n", clist_el (&chars, 14) -> val);
-}
+}*/
 // list element accessors :
 clist *clist_el (clist *list, int index) {
 	for (int i = 0; i < index && list -> next != 0; i ++) {

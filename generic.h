@@ -2,7 +2,7 @@
 #define NULL 0
 #endif
 
-#ifndef GENERIC_ENUMS
+#ifndef GENERIC
 enum _object {
 	CONSTANT = 1,
 	TYPE,
@@ -22,7 +22,7 @@ enum _return {
 };
 #endif
 
-typedef int bool;
+typedef char bool;
 
 // return ordinal number of character c in ASCII character set
 int char_ordinal (char c);
@@ -36,4 +36,4 @@ int char_to_digit_ordinal (char c);
 // return the character, representing the digit i
 char digit_ordinal_to_char (int i);
 
-#define GENERIC_ENUMS 0
+#define GENERIC 0

@@ -3,15 +3,25 @@
 #include "arithmetic.h"
 #include <math.h>
 #include <plot.h>
+
+#ifndef VECTOR
 // vector class :
 typedef struct _vec {
 	double *val;
 	int size;
 } vec;
 
+enum _plot_options {
+	POINTS = 0b1,
+	LINE = 0b10,
+};
+
+#endif
+
 // Only the double version of everything works.
 
-// #define char*>char*
+// initialize vector from double array :
+vec vec_init (double *arr, int size); // <---
 
 // print vec :
 void vec_print (vec vec);
@@ -34,7 +44,7 @@ double vec_mag (vec vec);
 double dot_prod (vec vec0, vec vec1);
 
 // cross product :
-vec cross_prod (vec vec0, vec vec1);
+vec cross_prod (vec vec0, vec vec1); // <---
 double cross_prod_mag (vec vec0, vec vec1);
 
-#define VECTOR_ENUMS 0
+#define VECTOR 0
