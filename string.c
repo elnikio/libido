@@ -1,17 +1,13 @@
 #include "string.h"
 
-/*
-int main () {
-	string string1 = "lego";
-	string string2 = "lemon";
-	string string3 = "leopard";
-	string string4 = "leonard";
-	string string5 = "lender";
-
-	return 0;
+// print:
+void string_print (string str) {
+	for (int i = 0; str [i] != '\0'; i ++)
+		printf ("%c", str [i]);
+		printf ("\n");
 }
-*/
-// string comparison :
+
+// logical:
 bool string_greater_than (string string1, string string2) {
 	for (int i = 0; string1 [i] != '\0' || string2 [i] != '\0'; i ++) {
 		if (
@@ -64,6 +60,8 @@ bool string_unequal (string string1, string string2) {
 	}
 	return FALSE;
 }
+
+// item:
 int string_greatest (string *strings, int size) {
 	int max;
 	int greatest_index = -1;
@@ -95,6 +93,8 @@ int string_find_char_last (string string1, char char1) {
 	}
 	return pos;
 }
+
+// copy:
 void string_copy_by_value (string string1, string string2) {
 	int i;
 	for (i = 0; string1 [i] != '\0'; i ++)

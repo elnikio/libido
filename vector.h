@@ -4,47 +4,36 @@
 #include <math.h>
 #include <plot.h>
 
+// vector class:
 #ifndef VECTOR
-// vector class :
-typedef struct _vec {
-	double *val;
-	int size;
-} vec;
-
-enum _plot_options {
-	POINTS = 0b1,
-	LINE = 0b10,
-};
-
+	typedef struct _vec {
+		double *val;
+		int size;
+	} vec;
 #endif
 
-// Only the double version of everything works.
-
-// initialize vector from double array :
-vec vec_init (double *arr, int size); // <---
-
-// print vec :
-void vec_print (vec vec);
-void vec_print_padded (vec vec, int padding);
-
-// genereate vec iteratively :
+// constructors:
+vec vec_from_arr (double arr[], int size); // <-- throws a multiple definition error.
+vec vec_from_const (double cons, int size);
 vec vec_gen (double min, double max, double inc, double (*function)(double));
 
-// lossy compression functions that retain some meaningful information about the vectors :
-
-// component-wise arithmetic :
+// methods:
+vec vec_fill (vec vec, double val);
+vec vec_clear (vec vec);
+vec vec_mul_const (vec vec, double mul);
+vec vec_div_const (vec vec, double div);
+vec vec_add_const (vec vec, double add);
+vec vec_sub_const (vec vec, double sub);
+vec vec_unit (vec vec);
 vec vec_add (vec vec0, vec vec1);
 vec vec_sub (vec vec0, vec vec1);
-vec hada_prod (vec vec0, vec vec1);
-
-// vector magnitude :
+vec vec_hada (vec vec0, vec vec1);
 double vec_mag (vec vec);
-
-// dor product :
 double dot_prod (vec vec0, vec vec1);
-
-// cross product :
-vec cross_prod (vec vec0, vec vec1); // <---
 double cross_prod_mag (vec vec0, vec vec1);
+
+// printers:
+void vec_print (vec vec);
+void vec_print_padded (vec vec, int padding);
 
 #define VECTOR 0

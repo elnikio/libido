@@ -1,2 +1,2 @@
 #!/bin/bash
-gcc pack.c /usr/include/libido/libido.a -lm -g -Wall
+gcc main.c /usr/include/libido/libido.a -lGL -lGLU -lGLEW -lglut -lm -g -Wall

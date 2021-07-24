@@ -1,22 +1,30 @@
 #include <stdio.h>
+#include <libido/generic.h>
 #include <libido/vector.h>
 #include <libido/arithmetic.h>
-//#include "vector.h"
-//#include "arithmetic.h"
+#include <libido/plot.h>
+#include <libido/string.h>
+#include <GL/glut.h>
+#include <stdlib.h>
 
-int main() {
-	printf ("This is awesome! Yolo!\n");
-	vec vec0 = vec_gen (1, 3, 1, &scalar_two_pow_neg);
-	vec vec1;
-	double val1[] = {6.0, 1.0, 4.0};
-	vec1.val = val1;
-	vec1.size = 3;
-	printf ("vec0 = ");
-	vec_print_padded (vec0, 6);
-	printf ("vec1 = ");
-	vec_print_padded (vec1, 6);
-	printf ("|| vec0 x vec1 || = %lf\n", cross_prod_mag (vec0, vec1));;
+int main(int argc, char **argv) {
+	char options = plot_options (TRUE, TRUE, TRUE, TRUE, TRUE);
+	printf ("options = %x\n", options);
+	canvas can;
+	canvas *canp = &can;
+	canvas_new (canp, 1920, 1080, -4, 4, -2, 2, options);
+	vec val_x = vec_gen (1, 10, 1, NULL);
+	vec val_y = vec_gen (2, 20, 2, NULL);
+	printf ("window has been created.\n");
+	/*
+	printf ("argc = %d\n", argc);
+	printf ("argv = ");
+	string_print (argv [0]);
+	printf ("\n");
+	*/
+	glutInit (&argc, argv);
+	vec_print_padded (val_x, 4);
+	vec_print_padded (val_y, 4);
+	vec_plot_2d (val_x, val_y, canp);
+	while (TRUE);
 }
-// cartinality of word - number of possible values
-// wordsize - number of bits
-// storage size = address-space * wordsize
