@@ -11,15 +11,15 @@ A C math library.
 # Documentation:
 ## Vector - <libido/vector.h>
 | Variable Type: | Members: | Description:<img width=1000/> |
-| -------------- | -------- | ------------ |
+| - | - | - |
 | `vec` | `double *val` - vector contents.<br> `int size` - vector size. | This is the vector struct. All functions in vector.h operate on `vec`. It is identical to the struct `set` from `<libido/set.h>`. |
 
 | Macro: | Description: <img width=1000/> |
-| --------- | ------------ |
+| - | - |
 | `NULL` | Null pointer. |
 
 | Function : | Arguments: | Description:<img width=1000/> |
-| ---------- | ---------- | ------------ |
+| - | - | - |
 | `vec_init` | `double *arr` - source array.<br> `int size` - source array size. | Initialize a vector from a double array. |
 | `vec_print` | `vec vec` - vector to print. | Print a vector in mathematical notation. |
 | `vec_print_padded` | `vec vec` - vector to print.<br> `int padding` - padding width | Print a vector in mathematical notation, with desired padding around values. |

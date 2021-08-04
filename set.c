@@ -5,6 +5,7 @@ set set_random (int size) {
 	double val[size];
 	set.val = val;
 	set.size = size;
+	return set;
 }
 
 set set_empty (int size) {
@@ -12,6 +13,7 @@ set set_empty (int size) {
 	double *val = malloc (size * sizeof(double));
 	set.val = val;
 	set.size = size;
+	return set;
 }
 
 set set_define (double *source, int size, bool (*function)(double)) {
@@ -43,12 +45,35 @@ set set_union (set set0, set set1) {
 	int i = 0;
 	set out = set_empty (set0.size + set1.size);
 	for (int j = 0; j < set0.size; j ++) {
-		if (set_contains(out, set0.val[j]))
+		if (!set_contains(out, set0.val[j]))
 			out.val [i ++] = set0.val[j];
 	}
 	for (int j = 0; j < set1.size; j ++) {
-		if (set_contains(out, set1.val[j]))
+		if (!set_contains(out, set1.val[j]))
 			out.val [i ++] = set1.val[j];
 	}
+	out.size = i;
+	return out;
+}
+
+set set_intersection (set set0, set set1) {
+	int i = 0;
+	set out = set_empty (set0.size);
+	for (int j = 0; j < set0.size; j ++) {
+		if (set_contains (set1, set0.val [j]))
+			out.val [i ++] = set0.val [j];
+	}
+	out.size = i;
+	return out;
+}
+
+set set_difference (set set0, set set1) {
+	int i = 0;
+	set out = set_empty (set0.size);
+	for (int j = 0; j < set0.size; j ++) {
+		if (!set_contains (set1, set0.val [j]))
+			out.val [i ++] = set0.val [j];
+	}
+	out.size = i;
 	return out;
 }

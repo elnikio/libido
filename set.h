@@ -17,5 +17,7 @@ set set_empty (int size);
 set set_define (double *source, int size, bool (*function)(double));
 bool set_contains (set set, double target);
 set set_union (set set0, set set1);
+set set_intersection (set set0, set set1);
+set set_difference (set set0, set set1);
 
 #define SET 0

@@ -11,7 +11,7 @@ void canvas_new (canvas *canvas, int window_width, int window_height, int X_min,
 }
 
 char plot_options (char axes, char lines, char lines_dashed, char points, char filling) {
-	char options;
+	char options = 0;
 	if (axes) options |= AXES;
 	if (lines) options |= LINES;
 	if (lines_dashed) options |= LINES_DASHED;
@@ -20,10 +20,10 @@ char plot_options (char axes, char lines, char lines_dashed, char points, char f
 	return options;
 }
 
-void vec_plot_2d (vec pointsX, vec pointsY, canvas *canvas) {
+void vec_plot_2d (vec pointsX, vec pointsY, canvas *canvas, int *argcp, char **argv) {
 	putchar ('g');
 	printf ("initializing glut...\n");
-	//glutInit (&argc, argv);
+	glutInit (argcp, argv);
 	printf ("glut initialized.\n");
 	GLenum type = 0;
 	type |= (GLUT_RGBA | GLUT_DOUBLE);

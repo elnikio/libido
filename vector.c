@@ -145,3 +145,17 @@ void vec_print_padded (vec vec, int padding) {
 	printf (")");
 	printf ("\n");
 }
+
+void vec_print_labeled (vec vec, char *label, int padding) {
+	printf ("%s = (", label);
+	for (int i = 0; i < vec.size; i ++) {
+		(i < vec.size - 1) ?
+		printf ("%*g, ", padding, vec.val [i]) :
+		printf ("%*g", padding, vec.val [i]);
+	}
+	printf (")");
+	printf ("\n");
+}
+void good_dog (int dog) {
+	printf ("dog = %d\n", dog);
+}

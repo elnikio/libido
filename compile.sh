@@ -8,7 +8,8 @@ gcc -o vector.o -c vector.c -g
 gcc -o generic.o -c generic.c -g
 gcc -o logic.o -c logic.c -g
 gcc -o plot.o -c plot.c -g
-gcc -shared -o libido.so arithmetic.o list.o matrix.o search.o string.o vector.o logic.o generic.o plot.o -g
+gcc -o set.o -c set.c -g
+gcc -shared -o libido.so arithmetic.o list.o matrix.o search.o string.o vector.o generic.o logic.o plot.o set.o -g
 ar -cvq libido.a *.o
 q - arithmetic.o
 q - list.o
@@ -17,5 +18,6 @@ q - search.o
 q - string.o
 q - vector.o
 q - generic.o
-g - logic.o
-g - plot.o
+q - logic.o
+q - plot.o
+q - set.o

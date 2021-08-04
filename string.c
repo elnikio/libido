@@ -4,7 +4,7 @@
 void string_print (string str) {
 	for (int i = 0; str [i] != '\0'; i ++)
 		printf ("%c", str [i]);
-		printf ("\n");
+	printf ("\n");
 }
 
 // logical:
