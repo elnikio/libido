@@ -104,3 +104,19 @@ void string_copy_by_value (string string1, string string2) {
 void string_copy_by_ref (string string1, string string2) {
 	string2 = string1;
 }
+
+// manipulate:
+char *string_remove (string string1, char target) {
+	int size = 0;
+	for (int i = 0; string1 [i] != '\0'; i ++)
+		size ++;
+	char *out = malloc (size);
+	int j = 0;
+	for (int i = 0; string1 [i] != '\0'; i ++, j ++) {
+		out [j] = string1 [i];
+		if (string1 [i] == target)
+			j --;
+	}
+	out [j] = '\0';
+	return out;
+}

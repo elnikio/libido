@@ -25,4 +25,7 @@ int string_find_char_last (string string1, char char1);
 void string_copy_by_value (string string1, string string2);
 void string_copy_by_ref (string string1, string string2);
 
+// manipulate:
+char *string_remove (string string1, char target);
+
 #define STRING 0
