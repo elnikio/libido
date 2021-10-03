@@ -66,10 +66,10 @@ typedef struct _canvas {
 
 int point_visible(canvas* can, int X, int Y) {
 	if (
-		X >= can->minX + can->originX &&
-		X <= can->maxX + can->originX&&
-		Y >= can->minY + can->originY&&
-		Y <= can->maxY + can->originY
+		X >= can->minX &&
+		X <= can->maxX &&
+		Y >= can->minY &&
+		Y <= can->maxY
 	) return 1;
 	else
 		return 0;
@@ -120,89 +120,82 @@ canvas *new_canvas(int sizeX, int sizeY) {
 	can -> buf = buf;
 	can -> sizeX = sizeX;
 	can -> sizeY = sizeY;
-	can -> minX = 1;
-	can -> minY = 1;
-	can -> maxX = sizeX - 2;
-	can -> maxY = sizeY - 2;
+	can -> minX = 0;
+	can -> minY = 0;
+	can -> maxX = sizeX - 1;
+	can -> maxY = sizeY - 1;
 	can -> originX = 0;
-	can -> originY = sizeY - 1;
+	can -> originY = 0;
 	can -> unit = 1.0;
 	return can;
 }
 
 void display(canvas* can) {
 	fflush(stdout);
-	//system("clear");
+	system("clear");
+
+	/*
 	for (int Y = 0; Y < can -> sizeY; Y ++) {
 		for (int X = 0; X < can -> sizeX; X ++)
 			printf("%s", can -> buf[Y][X]);
 		printf("\033[0;0m\n");
 	}
+	*/
 }
 
 int plot_point(canvas *can, int X, int Y, const char* color) {
-
-	X = X + can->originX;
-	Y = -Y + can->originY;
-
 	if (
-		X < can -> minX ||
-		X > can -> maxX ||
-		Y < can -> minY ||
-		Y > can -> maxY
+		X <= can -> minX ||
+		X >= can -> maxX ||
+		Y <= can -> minY ||
+		Y >= can -> maxY
 	) return 1;
 
 	if (point_visible(can, X, Y)) {
-		can -> buf[Y][X] = malloc(PIXSIZE);
-		sprintf(can -> buf[Y][X], "%s█%s", color, c0);
+		can -> buf[Y+can->originY][X+can->originX] = malloc(PIXSIZE);
+		sprintf(can -> buf[Y+can->originY][X+can->originX], "%s█%s", color, c0);
 	}
 
 	return 0;
 }
 
 int plot_char(canvas *can, int X, int Y, const char* color, char text) {
-
-	X = X + can->originX;
-	Y = -Y + can->originY;
-
 	if (
-		X < can -> minX ||
-		X > can -> maxX ||
-		Y < can -> minY ||
-		Y > can -> maxY
+		X <= can -> minX ||
+		X >= can -> maxX ||
+		Y <= can -> minY ||
+		Y >= can -> maxY
 	) return 1;
 
 	if (point_visible(can, X, Y)) {
-		can -> buf[Y][X] = malloc(PIXSIZE);
-		sprintf(can -> buf[Y][X], "%s%c%s", color, text, c0);
+		can -> buf[Y+can->originY][X+can->originX] = malloc(PIXSIZE);
+		sprintf(can -> buf[Y+can->originY][X+can->originX], "%s%c%s", color, text, c0);
 	}
 
 	return 0;
 }
 
 int plot_uni(canvas *can, int X, int Y, const char* color, char* text) {
-
-	X = X + can->originX;
-	Y = -Y + can->originY;
-
 	if (
-		X < can -> minX ||
-		X > can -> maxX ||
-		Y < can -> minY ||
-		Y > can -> maxY
+		X <= can -> minX ||
+		X >= can -> maxX ||
+		Y <= can -> minY ||
+		Y >= can -> maxY
 	) return 1;
 
 	if (point_visible(can, X, Y)) {
-		can -> buf[Y][X] = malloc(PIXSIZE);
-		sprintf(can -> buf[Y][X], "%s%s%s", color, text, c0);
+		can -> buf[Y+can->originY][X+can->originX] = malloc(PIXSIZE);
+		sprintf(can -> buf[Y+can->originY][X+can->originX], "%s%s%s", color, text, c0);
 	}
 
 	return 0;
 }
 
 int plot_axis(canvas *can, int originX, int originY) {
+
 	can -> originX = originX;
 	can -> originY = originY;
+
 	can -> maxX = can -> maxX - originX;
 	can -> minX = can -> minX - originX;
 	can -> maxY = can -> maxY - originY;
@@ -228,38 +221,9 @@ int plot_axis(canvas *can, int originX, int originY) {
 				plot_uni(can, 0, Y, c96, "┨");
 		}
 	}
-	plot_uni(can, originX, originY, c96, "╋");
+	plot_uni(can, 0, 0, c96, "╋");
 
 }
-
-/*
-int plot_axis(canvas *can, int originX, int originY) {
-	for (int X = can->minX; X <= can->maxX; X ++) {
-		plot_uni(can, X, originY, c96, "━");
-		if ((X - originX) % 8 == 0) {
-			if (originY >= (int)(can -> sizeY / 2)) {
-				plot_uni(can, X, originY, c96, "┯");
-				plot_uni(can, X, originY+1, c96, "1");
-			}
-			if (originY < (int)(can -> sizeY / 2))
-				plot_uni(can, X, originY, c96, "┷");
-		}
-	}
-	for (int Y = can->minY; Y <= can->maxY; Y ++) {
-		plot_uni(can, originX, Y, c96, "┃");
-		if ((Y - originY) % 4 == 0) {
-			if (originX < (int)(can -> sizeX / 2))
-				plot_uni(can, originX, Y, c96, "┠");
-			if (originX >= (int)(can -> sizeX / 2))
-				plot_uni(can, originX, Y, c96, "┨");
-		}
-	}
-	plot_uni(can, originX, originY, c96, "╋");
-
-	can -> originX = originX;
-	can -> originY = originY;
-}
-*/
 
 int main () {
 	canvas* can = new_canvas(FILL, FILL);
@@ -282,14 +246,13 @@ int main () {
 	plot_point(can, 16, 14, c96);
 	plot_point(can, 18, 14, c97);
 
-	char *text = "next gen graphics by libido/plot\0";
+	char *text = "next gen graphics by libido/plot HEWL YEAH!\0";
 	for (int i = 0; text[i] != '\0'; i ++)
 		plot_char(can, 4 + i, 10, c0, text[i]);
 
 	plot_char(can, 4, 16, c33, 'k');
-	plot_axis(can, 18, 20);
+	plot_axis(can, 2, 2);
 	plot_uni(can, 2, 2, c33, "∫");
-	//plot_uni(can, 6, 16, c33, "");
 
 	display(can);
 }
