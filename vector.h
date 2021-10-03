@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "arithmetic.h"
 #include <math.h>
-#include <plot.h>
+//#include <plot.h>
 
 // Types
 #ifndef VECTOR

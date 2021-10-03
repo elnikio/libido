@@ -1,39 +1,91 @@
-#include "plot.h"
+// camera = (width, height, distance)
 
-void canvas_new (canvas *canvas, int window_width, int window_height, int X_min, int X_max, int Y_min, int Y_max, char options) {
-	canvas -> window_width = window_width;
-	canvas -> window_height = window_height;
-	canvas -> X_min = X_min;
-	canvas -> X_max = X_max;
-	canvas -> Y_min = Y_min;
-	canvas -> Y_max = Y_max;
-	canvas -> options = options;
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+
+#define PIXSIZE 32
+#define FILL 0
+
+typedef char*** buffer;
+typedef char* pixel;
+typedef struct _canvas {
+	buffer buf;
+	int sizeX;
+	int sizeY;
+	int minX;
+	int minY;
+	int maxX;
+	int maxY;
+} canvas;
+
+struct winsize window_size() {
+	struct winsize w;
+	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+	return w;
 }
 
-char plot_options (char axes, char lines, char lines_dashed, char points, char filling) {
-	char options = 0;
-	if (axes) options |= AXES;
-	if (lines) options |= LINES;
-	if (lines_dashed) options |= LINES_DASHED;
-	if (points) options |= POINTS;
-	if (filling) options |= FILLING;
-	return options;
+canvas *new_canvas(int sizeX, int sizeY) {
+	struct winsize ws = window_size();
+	if (sizeX == FILL) {
+		sizeX = ws.ws_col;
+	}
+	if (sizeY == FILL) {
+		sizeY = ws.ws_row - 1;
+	}
+
+	buffer buf = malloc(sizeY * sizeof(pixel*));
+
+	for (int Y = 0; Y < sizeY; Y ++) {
+
+		pixel* row = malloc(sizeof(pixel) * sizeX);
+		for (int X = 0; X < sizeX; X ++) {
+			row[X] = malloc(16);
+			row[X] = "\033[0;30m█\033[0;0m";
+			if (X==0||Y==0||X==sizeX-1||Y==sizeY-1)
+				row[X] = "\033[0;31m█\033[0;0m";
+		}
+
+		buf[Y] = row;
+	}
+	canvas *can = malloc(sizeof (canvas));
+	can -> buf = buf;
+	can -> sizeX = sizeX;
+	can -> sizeY = sizeY;
+	can -> minX = 1;
+	can -> minY = 1;
+	can -> maxX = sizeX - 2;
+	can -> maxY = sizeY - 2;
+	return can;
 }
 
-void vec_plot_2d (vec pointsX, vec pointsY, canvas *canvas, int *argcp, char **argv) {
-	putchar ('g');
-	printf ("initializing glut...\n");
-	glutInit (argcp, argv);
-	printf ("glut initialized.\n");
-	GLenum type = 0;
-	type |= (GLUT_RGBA | GLUT_DOUBLE);
-	printf ("initializing glut...\n");
-	glutInitDisplayMode (type);
-	printf ("glutInitDisplayMode: [success]\n");
-	glutInitWindowSize (canvas -> window_width, canvas -> window_height);
-	printf ("glutInitWindowSize: [success]\n");
-	glutCreateWindow ("libido plot");
-	printf ("glutCreateWindow: [success]\n");
+void display(canvas* can) {
+	fflush(stdout);
+	system("clear");
+	for (int Y = 0; Y < can -> sizeY; Y ++) {
+		for (int X = 0; X < can -> sizeX; X ++)
+			printf("%s", can -> buf[Y][X]);
+		printf("\033[0;0m\n");
+	}
 }
 
-// void vec_plot_points (vec **points, canvas canvas);
+int plot_point(canvas *can, int X, int Y) {
+	if (
+		X < can -> minX ||
+		X > can -> maxX ||
+		Y < can -> minY ||
+		Y > can -> maxY
+	) return 1;
+
+	strcpy(can -> buf[X][Y], "\033[0;31m█\033[0;0m");
+
+	return 0;
+}
+
+int main () {
+	canvas* can = new_canvas(FILL, FILL);
+	//plot_point(can, 3, 4);
+	display(can);
+}

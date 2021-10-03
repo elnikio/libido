@@ -1,3 +1,3 @@
 #!/bin/bash
 mkdir /usr/include/libido
-cp ../libido/ /usr/include/libido
+cp -r ../libido/ /usr/include/libido
