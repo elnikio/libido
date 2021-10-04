@@ -1,4 +1,7 @@
+![title](./logo.png)
+
 # **Libido - \<libido/\>**
+
 A C math library.
 
 1. [Installation](#installation)  

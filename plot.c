@@ -81,7 +81,7 @@ struct winsize window_size() {
 	return w;
 }
 
-canvas *new_canvas(int sizeX, int sizeY) {
+canvas *canvas_new(int sizeX, int sizeY) {
 	struct winsize ws = window_size();
 	if (sizeX == FILL) {
 		sizeX = ws.ws_col;
@@ -100,13 +100,13 @@ canvas *new_canvas(int sizeX, int sizeY) {
 			row[X] = "\033[0;30m█\033[0;0m";
 
 			if (X==0&&Y==0)
-				row[X] = "\033[0;31m╔\033[0;0m";
-			else if (X==sizeX-1&&Y==sizeY-1)
-				row[X] = "\033[0;31m╝\033[0;0m";
-			else if (X==0&&Y==sizeY-1)
 				row[X] = "\033[0;31m╚\033[0;0m";
-			else if (X==sizeX-1&&Y==0)
+			else if (X==sizeX-1&&Y==sizeY-1)
 				row[X] = "\033[0;31m╗\033[0;0m";
+			else if (X==0&&Y==sizeY-1)
+				row[X] = "\033[0;31m╔\033[0;0m";
+			else if (X==sizeX-1&&Y==0)
+				row[X] = "\033[0;31m╝\033[0;0m";
 			else if (X==0||X==sizeX-1)
 				row[X] = "\033[0;31m║\033[0;0m";
 			else if (Y==0||Y==sizeY-1)
@@ -130,17 +130,114 @@ canvas *new_canvas(int sizeX, int sizeY) {
 	return can;
 }
 
+canvas *canvas_empty(int sizeX, int sizeY) {
+	struct winsize ws = window_size();
+	if (sizeX == FILL) {
+		sizeX = ws.ws_col;
+	}
+	if (sizeY == FILL) {
+		sizeY = ws.ws_row - 1;
+	}
+
+	buffer buf = malloc(sizeY * sizeof(pixel*));
+
+	for (int Y = 0; Y < sizeY; Y ++) {
+
+		pixel* row = malloc(sizeof(pixel) * sizeX);
+		for (int X = 0; X < sizeX; X ++) {
+			row[X] = malloc(PIXSIZE);
+			row[X] = "\033[0;30m█\033[0;0m";
+		}
+
+		buf[Y] = row;
+	}
+	canvas *can = malloc(sizeof (canvas));
+	can -> buf = buf;
+	can -> sizeX = sizeX;
+	can -> sizeY = sizeY;
+	can -> minX = 0;
+	can -> minY = 0;
+	can -> maxX = sizeX - 1;
+	can -> maxY = sizeY - 1;
+	can -> originX = 0;
+	can -> originY = 0;
+	can -> unit = 1.0;
+	return can;
+}
+
+buffer buffer_new(int sizeX, int sizeY) {
+	struct winsize ws = window_size();
+	if (sizeX == FILL) {
+		sizeX = ws.ws_col;
+	}
+	if (sizeY == FILL) {
+		sizeY = ws.ws_row - 1;
+	}
+
+	buffer buf = malloc(sizeY * sizeof(pixel*));
+
+	for (int Y = 0; Y < sizeY; Y ++) {
+
+		pixel* row = malloc(sizeof(pixel) * sizeX);
+		for (int X = 0; X < sizeX; X ++) {
+			row[X] = malloc(PIXSIZE);
+			row[X] = "\033[0;30m█\033[0;0m";
+
+			if (X==0&&Y==0)
+				row[X] = "\033[0;31m╚\033[0;0m";
+			else if (X==sizeX-1&&Y==sizeY-1)
+				row[X] = "\033[0;31m╗\033[0;0m";
+			else if (X==0&&Y==sizeY-1)
+				row[X] = "\033[0;31m╔\033[0;0m";
+			else if (X==sizeX-1&&Y==0)
+				row[X] = "\033[0;31m╝\033[0;0m";
+			else if (X==0||X==sizeX-1)
+				row[X] = "\033[0;31m║\033[0;0m";
+			else if (Y==0||Y==sizeY-1)
+				row[X] = "\033[0;31m═\033[0;0m";
+
+		}
+
+		buf[Y] = row;
+	}
+	return buf;
+}
+
+void canvas_merge(canvas* can0, canvas* can1) {
+	char* glass = "\033[0;30m█\033[0;0m";
+
+	for (int Y = 0; Y < can1 -> sizeY; Y ++) {
+		for (int X = 0; X < can1 -> sizeX; X ++) {
+			if (strcmp(can1->buf[Y][X], glass))
+				can0->buf[Y][X] = can1->buf[Y][X];
+		}
+	}
+
+}
+
+void canvas_flip_vertical(canvas *can) {
+	buffer bufNew = malloc(can->sizeY * sizeof(pixel*));
+
+	for (int Y = 0; Y < can -> sizeY; Y ++) {
+		pixel* row = malloc(PIXSIZE * can -> sizeX);
+		for (int X = 0; X < can -> sizeX; X ++) {
+			row[X] = can->buf[can->sizeY -1 - Y][X];
+		}
+
+		bufNew[Y] = row;
+	}
+	can->buf = bufNew;
+}
+
 void display(canvas* can) {
 	fflush(stdout);
 	system("clear");
-
-	/*
-	for (int Y = 0; Y < can -> sizeY; Y ++) {
+	
+	for (int Y = can -> sizeY - 1; Y >= 0; Y --) {
 		for (int X = 0; X < can -> sizeX; X ++)
 			printf("%s", can -> buf[Y][X]);
 		printf("\033[0;0m\n");
 	}
-	*/
 }
 
 int plot_point(canvas *can, int X, int Y, const char* color) {
@@ -157,6 +254,103 @@ int plot_point(canvas *can, int X, int Y, const char* color) {
 	}
 
 	return 0;
+}
+
+int plot_image(canvas* can, int X, int Y, char* img_path) {
+
+	buffer img_buf = buffer_new(FILL, FILL);
+
+	FILE *img = NULL;
+	if ((img = fopen(img_path, "r")) == NULL) {
+		fprintf(stderr, "error opening %s\n", img_path);
+		return 1;
+	}
+
+	int posX = X;
+	int posY = Y;
+	char c;
+
+	while((c = fgetc(img)) != EOF) {
+		switch (c) {
+
+			// black
+			case 'o':
+				plot_point(can, posX, posY, c31);
+				break;
+
+			// dark
+			case 'd':
+				plot_point(can, posX, posY, c30);
+				break;
+			case 'D':
+				plot_point(can, posX, posY, c90);
+				break;
+
+			// red
+			case 'r':
+				plot_point(can, posX, posY, c31);
+				break;
+			case 'R':
+				plot_point(can, posX, posY, c91);
+				break;
+
+			// green
+			case 'g':
+				plot_point(can, posX, posY, c32);
+				break;
+			case 'G':
+				plot_point(can, posX, posY, c92);
+				break;
+
+			// yellow
+			case 'y':
+				plot_point(can, posX, posY, c33);
+				break;
+			case 'Y':
+				plot_point(can, posX, posY, c93);
+				break;
+
+			// blue
+			case 'b':
+				plot_point(can, posX, posY, c34);
+				break;
+			case 'B':
+				plot_point(can, posX, posY, c94);
+				break;
+
+			// purple
+			case 'p':
+				plot_point(can, posX, posY, c35);
+				break;
+			case 'P':
+				plot_point(can, posX, posY, c95);
+				break;
+
+			// cyan
+			case 'c':
+				plot_point(can, posX, posY, c36);
+				break;
+			case 'C':
+				plot_point(can, posX, posY, c96);
+				break;
+
+			// white
+			case 'w':
+				plot_point(can, posX, posY, c37);
+				break;
+			case 'W':
+				plot_point(can, posX, posY, c97);
+				break;
+
+		}
+
+		if (c == '\n') {
+			posX = X;
+			posY ++;
+		}
+		else
+			posX ++;
+	}
 }
 
 int plot_char(canvas *can, int X, int Y, const char* color, char text) {
@@ -226,33 +420,44 @@ int plot_axis(canvas *can, int originX, int originY) {
 }
 
 int main () {
-	canvas* can = new_canvas(FILL, FILL);
-	
-	plot_point(can, 4, 12, c30);
-	plot_point(can, 6, 12, c31);
-	plot_point(can, 8, 12, c32);
-	plot_point(can, 10, 12, c33);
-	plot_point(can, 12, 12, c34);
-	plot_point(can, 14, 12, c35);
-	plot_point(can, 16, 12, c36);
-	plot_point(can, 18, 12, c37);	
-	
-	plot_point(can, 4, 14, c90);
-	plot_point(can, 6, 14, c91);
-	plot_point(can, 8, 14, c92);
-	plot_point(can, 10, 14, c93);
-	plot_point(can, 12, 14, c94);
-	plot_point(can, 14, 14, c95);
-	plot_point(can, 16, 14, c96);
-	plot_point(can, 18, 14, c97);
+	canvas* can = canvas_new(FILL, FILL);
 
-	char *text = "next gen graphics by libido/plot HEWL YEAH!\0";
+	plot_point(can, 4, 1, c30);
+	plot_point(can, 6, 1, c90);
+
+	plot_point(can, 10, 1, c31);
+	plot_point(can, 12, 1, c91);
+
+	plot_point(can, 16, 1, c32);
+	plot_point(can, 18, 1, c92);
+
+	plot_point(can, 22, 1, c33);
+	plot_point(can, 24, 1, c93);
+
+	plot_point(can, 28, 1, c34);
+	plot_point(can, 30, 1, c94);
+
+	plot_point(can, 34, 1, c35);
+	plot_point(can, 36, 1, c95);
+
+	plot_point(can, 40, 1, c36);
+	plot_point(can, 42, 1, c96);
+
+	plot_point(can, 46, 1, c37);
+	plot_point(can, 48, 1, c97);
+
+	//char *text = "C math lib baby!\0";
+	char *text = "C math lib w/ rad console plots\0";
 	for (int i = 0; text[i] != '\0'; i ++)
-		plot_char(can, 4 + i, 10, c0, text[i]);
+		plot_char(can, 18 + i, 5, c31, text[i]);
 
-	plot_char(can, 4, 16, c33, 'k');
 	plot_axis(can, 2, 2);
-	plot_uni(can, 2, 2, c33, "∫");
+
+	canvas* can_logo = canvas_empty(FILL, FILL);
+	plot_image(can_logo, 13, 6, "text.txt");
+	canvas_flip_vertical(can_logo);
+
+	canvas_merge(can, can_logo);
 
 	display(can);
 }
