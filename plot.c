@@ -1,10 +1,5 @@
 // camera = (width, height, distance)
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
+#include "plot.h"
 
 /*
 todo:
@@ -15,6 +10,8 @@ todo:
 
 #define PIXSIZE 32
 #define FILL 0
+
+typedef int* point;
 	
 char* c0 = "\033[0;0m";
 const char* c2 = "\033[0;2m";
@@ -55,21 +52,35 @@ const char* c105 = "\033[0;105m";
 const char* c106 = "\033[0;106m";
 const char* c107 = "\033[0;107m";
 const char* c109 = "\033[0;109m";
+const char* cran = "R";
 
-typedef char*** buffer;
-typedef char* pixel;
-typedef struct _canvas {
-	buffer buf;
-	int sizeX;
-	int sizeY;
-	int minX;
-	int minY;
-	int maxX;
-	int maxY;
-	int originX;
-	int originY;
-	float unit;
-} canvas;
+char* rand_c () {
+	int num = rand() % 6 + 1;
+	char *c = NULL;
+
+	switch (num) {
+		case 1:
+			c = "\033[0;31m";
+			break;
+		case 2:
+			c = "\033[0;32m";
+			break;
+		case 3:
+			c = "\033[0;33m";
+			break;
+		case 4:
+			c = "\033[0;34m";
+			break;
+		case 5:
+			c = "\033[0;35m";
+			break;
+		case 6:
+			c = "\033[0;36m";
+			break;
+	}
+
+	return c;
+}
 
 int point_visible(canvas* can, int X, int Y) {
 	if (
@@ -88,7 +99,7 @@ struct winsize window_size() {
 	return w;
 }
 
-canvas *canvas_new(int sizeX, int sizeY, float unit) {
+canvas *canvas_new(int sizeX, int sizeY, double unit) {
 	struct winsize ws = window_size();
 	if (sizeX == FILL) {
 		sizeX = ws.ws_col;
@@ -212,6 +223,9 @@ buffer buffer_new(int sizeX, int sizeY) {
 
 void canvas_merge(canvas* can0, canvas* can1) {
 	char* glass = "\033[0;30m█\033[0;0m";
+	if (can0->sizeX < can1->sizeX || can0->sizeY < can1->sizeY) {
+		printf("error: attempting to merge two canvas of differing sizes. second argument to canvas_merge() must be the smaller of the two canvases.");
+	}
 
 	for (int Y = 0; Y < can1 -> sizeY; Y ++) {
 		for (int X = 0; X < can1 -> sizeX; X ++) {
@@ -238,7 +252,7 @@ void canvas_flip_vertical(canvas *can) {
 
 void display(canvas* can) {
 	fflush(stdout);
-	system("clear");
+	//system("clear");
 	
 	for (int Y = can -> sizeY - 1; Y >= 0; Y --) {
 		for (int X = 0; X < can -> sizeX; X ++)
@@ -248,6 +262,8 @@ void display(canvas* can) {
 }
 
 int plot_point(canvas *can, int X, int Y, const char* color) {
+	if (color[0] == 'R')
+		color = rand_c ();
 	if (
 		X <= can -> minX ||
 		X >= can -> maxX ||
@@ -451,46 +467,108 @@ int plot_axis(canvas *can, int originX, int originY) {
 	plot_uni(can, 0, 0, c96, "╋");
 
 }
+/*
+ 2.5 to  3.5 =  3
+ 1.5 to  2.5 =  2
+ 0.5 to  1.5 =  1
+-0.5 to -0.5 =  0
+-0.5 to -1.5 = -1
+-1.5 to -2.5 = -2
+-2.5 to -3.5 = -3
+*/
+point point_from_vec (vec vector) {
+	point p = malloc(sizeof(int) * 2);
+
+	if (vector.size < 2) {
+		printf ("error: point_from_vec received a vector of dimension lower than 2.\n");
+		return 0;
+	}
+
+	if (vector.val[0] >= 0) {
+		double frac = vector.val[0] - (int)vector.val[0];
+		vector.val[0] = (int)vector.val[0];
+		if (frac >= 0.5)
+			vector.val[0] += 1;
+	}
+
+	if (vector.val[1] < 0) {
+		double frac = vector.val[1] - (int)vector.val[1];
+		vector.val[1] = (int)vector.val[1];
+		if (frac < -0.5)
+			vector.val[1] -= 1;
+	}
+
+	p[0] = vector.val[0];
+	p[1] = vector.val[1];
+
+	return p;
+}
+
+
+
+void plot_vec (canvas *can, vec vector, const char* color) {
+	vector.val[0] *= 8 / can -> unit;
+	vector.val[1] *= 4 / can -> unit;
+	point p = point_from_vec (vector);
+	plot_point(can, p[0], p[1], color);
+	free (p);
+}
+
+vec* vecs_from_func (double min, double max, double inc, double (*function)(double)) {
+	int count = (max - min) / inc;
+	vec *vectors = malloc(sizeof (vec) * count + 1);
+
+	int j = 0;
+	for (double i = min; i <= max; i += inc, j ++) {
+		double *vector = malloc(sizeof(double)*2);
+		vector[0] = i;
+		vector[1] = function(i);
+		vectors[j].val = vector;
+		vectors[j].size = 2;
+	}
+	vectors[j].val = NULL;
+	return vectors;
+}
+void plot_vecs (canvas *can, vec* vectors, const char* color) {
+	for (int i = 0; vectors[i].val != NULL; i ++)
+		plot_vec (can, vectors[i], color);
+}
+
+double squared (double x) {
+	return x * x;
+}
 
 int main () {
-	canvas* can = canvas_new(FILL, FILL, 1.53);
-
-	plot_point(can, 4, 1, c30);
-	plot_point(can, 6, 1, c90);
-
-	plot_point(can, 10, 1, c31);
-	plot_point(can, 12, 1, c91);
-
-	plot_point(can, 16, 1, c32);
-	plot_point(can, 18, 1, c92);
-
-	plot_point(can, 22, 1, c33);
-	plot_point(can, 24, 1, c93);
-
-	plot_point(can, 28, 1, c34);
-	plot_point(can, 30, 1, c94);
-
-	plot_point(can, 34, 1, c35);
-	plot_point(can, 36, 1, c95);
-
-	plot_point(can, 40, 1, c36);
-	plot_point(can, 42, 1, c96);
-
-	plot_point(can, 46, 1, c37);
-	plot_point(can, 48, 1, c97);
-
-	//char *text = "C math lib baby!\0";
+	canvas* can = canvas_new(FILL, 32, 1.0);
+	
 	char *text = "C math lib w/ rad console plots\0";
 	for (int i = 0; text[i] != '\0'; i ++)
 		plot_char(can, 18 + i, 5, c31, text[i]);
+	
+	can->unit = 0.5;
+	plot_axis(can, can->sizeX/2, can->sizeY/4);
 
-	plot_axis(can, 48, 18);
-
-	canvas* can_logo = canvas_empty(FILL, FILL);
-	plot_image(can_logo, 13, 6, "text.txt");
+	canvas* can_logo = canvas_empty(FILL, 32);
+	plot_image(can_logo, 32, 6, "text.txt");
 	canvas_flip_vertical(can_logo);
 
-	//canvas_merge(can, can_logo);
+	vec vector;
+	double v[2] = {2.3, 4.7};
+	vector.val = v;
+	vector.size = 2;
+	canvas_merge(can, can_logo);
+	
+	vec *square_points = vecs_from_func (-6, 6, 0.05, squared);
+	plot_vecs (can, square_points, c92);
+	
+	vec *sin_points = vecs_from_func (-6, 6, 0.05, sin);
+	plot_vecs (can, sin_points, c91);
+
+	vec *log_points = vecs_from_func (-6, 6, 0.05, log);
+	plot_vecs (can, log_points, c93);
+	
+	vec *sqrt_points = vecs_from_func (-6, 6, 0.05, sqrt);
+	plot_vecs (can, sqrt_points, c94);
 
 	display(can);
 }
