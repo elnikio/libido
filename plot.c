@@ -6,6 +6,13 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+/*
+todo:
+ - add overlap parameter to all plotting functions:
+    - overlap = FRONT to overwrite buffer
+	- overlap = BACK to write below buffer, i.e. do not overwrite
+*/
+
 #define PIXSIZE 32
 #define FILL 0
 	
@@ -61,7 +68,7 @@ typedef struct _canvas {
 	int maxY;
 	int originX;
 	int originY;
-	double unit;
+	float unit;
 } canvas;
 
 int point_visible(canvas* can, int X, int Y) {
@@ -81,7 +88,7 @@ struct winsize window_size() {
 	return w;
 }
 
-canvas *canvas_new(int sizeX, int sizeY) {
+canvas *canvas_new(int sizeX, int sizeY, float unit) {
 	struct winsize ws = window_size();
 	if (sizeX == FILL) {
 		sizeX = ws.ws_col;
@@ -126,7 +133,7 @@ canvas *canvas_new(int sizeX, int sizeY) {
 	can -> maxY = sizeY - 1;
 	can -> originX = 0;
 	can -> originY = 0;
-	can -> unit = 1.0;
+	can -> unit = unit;
 	return can;
 }
 
@@ -353,6 +360,7 @@ int plot_image(canvas* can, int X, int Y, char* img_path) {
 	}
 }
 
+
 int plot_char(canvas *can, int X, int Y, const char* color, char text) {
 	if (
 		X <= can -> minX ||
@@ -366,6 +374,12 @@ int plot_char(canvas *can, int X, int Y, const char* color, char text) {
 		sprintf(can -> buf[Y+can->originY][X+can->originX], "%s%c%s", color, text, c0);
 	}
 
+	return 0;
+}
+
+int plot_string(canvas *can, int X, int Y, const char* color, char* text) {
+	for (int i = 0; text[i] != '\0'; i ++)
+		plot_char(can, X + i, Y, color, text[i]);
 	return 0;
 }
 
@@ -397,22 +411,41 @@ int plot_axis(canvas *can, int originX, int originY) {
 
 	for (int X = can->minX; X <= can->maxX; X ++) {
 		plot_uni(can, X, 0, c96, "━");
-		if (X % 8 == 0) {
+		if (X % 8 == 0 && X != 0) {
 			if (originY >= (int)(can -> sizeY / 2)) {
 				plot_uni(can, X, 0, c96, "┯");
-				plot_uni(can, X, 1, c96, "1");
+				char val[8];
+			   	sprintf(val, "%f", X/8 * can->unit);
+				val[6] = '\0';
+				plot_string(can, X, -1, c96, val);
+
 			}
-			if (originY < (int)(can -> sizeY / 2))
+			if (originY < (int)(can -> sizeY / 2)) {
 				plot_uni(can, X, 0, c96, "┷");
+				char val[8];
+			   	sprintf(val, "%f", X/8 * can->unit);
+				val[6] = '\0';
+				plot_string(can, X, 1, c96, val);
+			}
 		}
 	}
 	for (int Y = can->minY; Y <= can->maxY; Y ++) {
 		plot_uni(can, 0, Y, c96, "┃");
-		if (Y % 4 == 0) {
-			if (originX < (int)(can -> sizeX / 2))
+		if (Y % 4 == 0 && Y != 0) {
+			if (originX < (int)(can -> sizeX / 2)) {
 				plot_uni(can, 0, Y, c96, "┠");
-			if (originX >= (int)(can -> sizeX / 2))
+				char val[8];
+			   	sprintf(val, "%f", Y/4 * can->unit);
+				val[6] = '\0';
+				plot_string(can, 2, Y, c96, val);
+			}
+			if (originX >= (int)(can -> sizeX / 2)) {
 				plot_uni(can, 0, Y, c96, "┨");
+				char val[8];
+			   	sprintf(val, "%f", Y/4 * can->unit);
+				val[6] = '\0';
+				plot_string(can, -7, Y, c96, val);
+			}
 		}
 	}
 	plot_uni(can, 0, 0, c96, "╋");
@@ -420,7 +453,7 @@ int plot_axis(canvas *can, int originX, int originY) {
 }
 
 int main () {
-	canvas* can = canvas_new(FILL, FILL);
+	canvas* can = canvas_new(FILL, FILL, 1.53);
 
 	plot_point(can, 4, 1, c30);
 	plot_point(can, 6, 1, c90);
@@ -451,13 +484,13 @@ int main () {
 	for (int i = 0; text[i] != '\0'; i ++)
 		plot_char(can, 18 + i, 5, c31, text[i]);
 
-	plot_axis(can, 2, 2);
+	plot_axis(can, 48, 18);
 
 	canvas* can_logo = canvas_empty(FILL, FILL);
 	plot_image(can_logo, 13, 6, "text.txt");
 	canvas_flip_vertical(can_logo);
 
-	canvas_merge(can, can_logo);
+	//canvas_merge(can, can_logo);
 
 	display(can);
 }
