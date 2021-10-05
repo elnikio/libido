@@ -590,19 +590,19 @@ int main () {
 	can->unit = 0.5;
 	plot_axis(can, can->sizeX/2, can->sizeY/4);
 	
-	vec *square_points = vecs_from_func (-6, 6, 0.05, squared);
+	vec *square_points = vecs_from_func (-6, 6, 0.02, squared);
 	plot_vecs (can, square_points, c92);
 	
-	vec *sin_points = vecs_from_func (-6, 6, 0.05, sin);
+	vec *sin_points = vecs_from_func (-6, 6, 0.02, sin);
 	plot_vecs (can, sin_points, c91);
 
-	vec *log_points = vecs_from_func (-6, 6, 0.05, log);
+	vec *log_points = vecs_from_func (-6, 6, 0.02, log);
 	plot_vecs (can, log_points, c93);
 	
-	vec *sqrt_points = vecs_from_func (-6, 6, 0.05, sqrt);
+	vec *sqrt_points = vecs_from_func (-6, 6, 0.02, sqrt);
 	plot_vecs (can, sqrt_points, c94);
 
-	//plot_logo (can, 32, 8);
+	plot_logo (can, 32, 8);
 
 
 	display_i (can);

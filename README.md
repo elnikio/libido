@@ -1,4 +1,4 @@
-![title](./logo.png)
+![title](./logo2.png)
 
 # **Libido - \<libido/\>**
 
