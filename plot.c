@@ -1,5 +1,7 @@
 // camera = (width, height, distance)
 #include "plot.h"
+#include "string.h"
+#include <ncurses.h>
 
 /*
 todo:
@@ -10,6 +12,8 @@ todo:
 
 #define PIXSIZE 32
 #define FILL 0
+#define CLEAR 1
+#define DONT_CLEAR 0
 
 typedef int* point;
 	
@@ -99,7 +103,7 @@ struct winsize window_size() {
 	return w;
 }
 
-canvas *canvas_new(int sizeX, int sizeY, double unit) {
+canvas *canvas_new(int sizeX, int sizeY, double unit, int clear) {
 	struct winsize ws = window_size();
 	if (sizeX == FILL) {
 		sizeX = ws.ws_col;
@@ -145,10 +149,11 @@ canvas *canvas_new(int sizeX, int sizeY, double unit) {
 	can -> originX = 0;
 	can -> originY = 0;
 	can -> unit = unit;
+	can -> clear = clear;
 	return can;
 }
 
-canvas *canvas_empty(int sizeX, int sizeY) {
+canvas *canvas_empty(int sizeX, int sizeY, int clear) {
 	struct winsize ws = window_size();
 	if (sizeX == FILL) {
 		sizeX = ws.ws_col;
@@ -180,6 +185,7 @@ canvas *canvas_empty(int sizeX, int sizeY) {
 	can -> originX = 0;
 	can -> originY = 0;
 	can -> unit = 1.0;
+	can -> clear = clear;
 	return can;
 }
 
@@ -252,7 +258,8 @@ void canvas_flip_vertical(canvas *can) {
 
 void display(canvas* can) {
 	fflush(stdout);
-	//system("clear");
+	if (can->clear == 1)
+		system("clear");
 	
 	for (int Y = can -> sizeY - 1; Y >= 0; Y --) {
 		for (int X = 0; X < can -> sizeX; X ++)
@@ -538,25 +545,50 @@ double squared (double x) {
 	return x * x;
 }
 
+void plot_logo (canvas* can, int X, int Y) {
+	canvas* can_logo = canvas_empty(can->sizeX, can->sizeY, DONT_CLEAR);
+	plot_image(can_logo, X, Y, "text.txt");
+	canvas_flip_vertical(can_logo);
+	canvas_merge(can, can_logo);
+}
+
+int canvas_ctl (canvas *can, char* input) {
+/*
+	if (command exists) {
+		execute command;
+		return 0;
+	}
+	else
+		return 1;
+*/
+}
+
+void display_i (canvas* can) {
+	char* input= malloc(32);
+	char* input_exit = malloc(5);
+	char* exit = malloc(5);
+
+	strncpy(exit, "exit\0", 5);
+	display(can);
+
+	do {
+		fgets(input, 32, stdin);
+		display(can);
+		strncpy(input_exit, input, 4);
+		input_exit[4] = '\0';
+		if (string_equal_till(exit, input_exit, 4))
+			break;
+		else if (!canvas_ctl(can, input));
+		else
+			printf("[command not recognized. type `help` for list of commands.]\n");
+	} while(1);
+}
+
 int main () {
-	canvas* can = canvas_new(FILL, 32, 1.0);
-	
-	char *text = "C math lib w/ rad console plots\0";
-	for (int i = 0; text[i] != '\0'; i ++)
-		plot_char(can, 18 + i, 5, c31, text[i]);
+	canvas* can = canvas_new(FILL, 32, 1.0, CLEAR);
 	
 	can->unit = 0.5;
 	plot_axis(can, can->sizeX/2, can->sizeY/4);
-
-	canvas* can_logo = canvas_empty(FILL, 32);
-	plot_image(can_logo, 32, 6, "text.txt");
-	canvas_flip_vertical(can_logo);
-
-	vec vector;
-	double v[2] = {2.3, 4.7};
-	vector.val = v;
-	vector.size = 2;
-	canvas_merge(can, can_logo);
 	
 	vec *square_points = vecs_from_func (-6, 6, 0.05, squared);
 	plot_vecs (can, square_points, c92);
@@ -570,5 +602,8 @@ int main () {
 	vec *sqrt_points = vecs_from_func (-6, 6, 0.05, sqrt);
 	plot_vecs (can, sqrt_points, c94);
 
-	display(can);
+	//plot_logo (can, 32, 8);
+
+
+	display_i (can);
 }

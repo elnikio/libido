@@ -18,6 +18,7 @@ typedef struct _canvas {
 	int maxY;
 	int originX;
 	int originY;
+	int clear;
 	double unit;
 } canvas;
 #endif
@@ -34,12 +35,14 @@ struct winsize window_size (
 canvas *canvas_new (
 	int sizeX,
 	int sizeY,
-	double unit
+	double unit,
+	int clear
 );
 
 canvas *canvas_empty (
 	int sizeX,
-	int sizeY
+	int sizeY,
+	int clear
 );
 
 buffer buffer_new (

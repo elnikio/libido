@@ -14,6 +14,7 @@ void string_print (string str);
 bool string_greater_than (string string1, string string2);
 bool string_less_than (string string1, string string2);
 bool string_equal (string string1, string string2);
+bool string_equal_till (string string1, string string2, int till);
 bool string_unequal (string string1, string string2);
 
 // item:

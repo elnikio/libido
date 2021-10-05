@@ -47,6 +47,15 @@ bool string_equal (string string1, string string2) {
 	}
 	return TRUE;
 }
+bool string_equal_till (string string1, string string2, int till) {
+	for (int i = 0; i < till; i ++) {
+		if (string1[i] == '\0' || string2[i] == '\0')
+			return FALSE;
+		if (string1[i] != string2[i])
+			return FALSE;
+	}
+	return TRUE;
+}
 bool string_unequal (string string1, string string2) {
 	for (int i = 0; string1 [i] != '\0' || string2 [i] != '\0'; i ++) {
 		if (
