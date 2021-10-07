@@ -2,7 +2,7 @@
 
 # **Libido - \<libido/\>**
 
-C math lib w/ rad console plots.
+C math lib w/ rad console plots using unicode colors.
 
 ---
 # **Installation**
