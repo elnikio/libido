@@ -76,17 +76,19 @@ vec vec_unit (vec vec) {
 }
 
 vec vec_add (vec vec0, vec vec1) {
+	vec vec2 = vec_from_const (0, 2);
 	for (int i = 0; i < vec0.size; i ++) {
-		vec0.val [i] += vec1.val [i];
+		vec2.val [i] = vec1.val [i] + vec0.val[i];
 	}
-	return vec0;
+	return vec2;
 }
 
 vec vec_sub (vec vec0, vec vec1) {
+	vec vec2 = vec_from_const (0, 2);
 	for (int i = 0; i < vec0.size; i ++) {
-		vec0.val [i] -= vec1.val [i];
+		vec2.val [i] = vec0.val [i] - vec1.val [i];
 	}
-	return vec0;
+	return vec2;
 }
 
 vec vec_hada (vec vec0, vec vec1) {
@@ -146,16 +148,31 @@ void vec_print_padded (vec vec, int padding) {
 	printf ("\n");
 }
 
-void vec_print_labeled (vec vec, char *label, int padding) {
-	printf ("%s = (", label);
+void vec_print_fancy (vec vec, char *label, int padding, const char* color) {
+	printf ("%s%s = (%s", color, label, "\033[0;0m");
 	for (int i = 0; i < vec.size; i ++) {
 		(i < vec.size - 1) ?
 		printf ("%*g, ", padding, vec.val [i]) :
 		printf ("%*g", padding, vec.val [i]);
 	}
-	printf (")");
+	printf ("%s)%s", color, "\033[0;0m");
 	printf ("\n");
 }
 void good_dog (int dog) {
 	printf ("dog = %d\n", dog);
 }
+/*
+int main () {
+	double A[2] = {3,1},
+		   B[2] = {7,-2};
+	vec vecA = vec_from_arr (A, 2);
+	vec vecB = vec_from_arr (B, 2);
+
+	vec vecC = vec_add (vecA, vecB);
+	vec vecD = vec_sub (vecA, vecB);
+	vec_print_fancy (vecA, "A", 4, "\033[0;31m");
+	vec_print_fancy (vecB, "B", 4, "\033[0;31m");
+	vec_print_fancy (vecC, "A + B", 4, "\033[0;31m");
+	vec_print_fancy (vecD, "A - B", 4, "\033[0;31m");
+}
+*/

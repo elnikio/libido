@@ -1,79 +1,56 @@
-#include "set.h"
+typedef void* space;
 
-set set_random (int size) {
-	set set;
-	double val[size];
-	set.val = val;
-	set.size = size;
-	return set;
+enum types {
+	CHAR,
+
+};
+
+typedef struct {
+	void* universe;
+	char* types;
+	char* mask;
+	int size;
+} set;
+
+void space_add (space S, void* pointer, char* type) {
+	int size = 0;
+
+	if !(strcmp (type, "char"))
+		size = sizeof(char);
+	else if (strcmp (type, "short"))
+		size = sizeof(short);
+	else if (strcmp (type, "unsigned short"))
+		size = sizeof(unsigned short);
+	else if (strcmp (type, "int"))
+		size = sizeof(int);
+	else if (strcmp (type, "unsigned int"))
+		size = sizeof(unsigned int);
+	else if (strcmp (type, "long"))
+		size = sizeof(long);
+	else if (strcmp (type, "unsigned long"))
+		size = sizeof(unsigned long);
+	else if (strcmp (type, "long long"))
+		size = sizeof(long long);
+	else if(strcmp (type, "unsigned long long"))
+		size = sizeof(unsigned long long);
+	else if(strcmp (type, "float"))
+		size = sizeof(float);
+	else if(strcmp (type, "double"))
+		size = sizeof(double);
+	else if(strcmp (type, "long double"))
+		size = sizeof(long double);
+
+	S.universe = realloc (S.universe, sizeof(S.universe) + sizeof(void*));
+	S.universe[S.size] = pointer;
+	S.types = realloc (S.types, sizeof(S.types) + sizeof(char*));
+	S.types[S.size] = type;
 }
 
-set set_empty (int size) {
-	set set;
-	double *val = malloc (size * sizeof(double));
-	set.val = val;
-	set.size = size;
-	return set;
+void space_from_array (space S, ) {
+
 }
 
-set set_define (double *source, int size, bool (*function)(double)) {
-	double *val = malloc (sizeof (source));
-	int i = 0;
-	int j = 0;
-	while (i < size || size == 0) {
-		if (source [i] == '\0' || i == size)
-			break;
-		if (function ((int) source [i ++]))
-			val [j ++] = source [i];
-	}
-	val [j] = '\0';
-	set set;
-	set.val = val;
-	set.size = j;
-	return set;
-}
+int main () {
+	space S;
 
-bool set_contains (set set, double target) {
-	for (int i = 0; i < set.size; i ++) {
-		if (set.val[i] == target)
-			return TRUE;
-	}
-	return FALSE;
-}
-
-set set_union (set set0, set set1) {
-	int i = 0;
-	set out = set_empty (set0.size + set1.size);
-	for (int j = 0; j < set0.size; j ++) {
-		if (!set_contains(out, set0.val[j]))
-			out.val [i ++] = set0.val[j];
-	}
-	for (int j = 0; j < set1.size; j ++) {
-		if (!set_contains(out, set1.val[j]))
-			out.val [i ++] = set1.val[j];
-	}
-	out.size = i;
-	return out;
-}
-
-set set_intersection (set set0, set set1) {
-	int i = 0;
-	set out = set_empty (set0.size);
-	for (int j = 0; j < set0.size; j ++) {
-		if (set_contains (set1, set0.val [j]))
-			out.val [i ++] = set0.val [j];
-	}
-	out.size = i;
-	return out;
-}
-
-set set_difference (set set0, set set1) {
-	int i = 0;
-	set out = set_empty (set0.size);
-	for (int j = 0; j < set0.size; j ++) {
-		if (!set_contains (set1, set0.val [j]))
-			out.val [i ++] = set0.val [j];
-	}
-	out.size = i;
-	return out;
 }

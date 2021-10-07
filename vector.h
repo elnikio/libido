@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "arithmetic.h"
 #include <math.h>
+//#include "colors.h"
 //#include <plot.h>
 
 // Types
@@ -92,7 +93,13 @@ void vec_print_labeled (
 	vec vec,		// target vector.
 	char *label,	// vector label.
 	int padding		// padding width.
-); // Print a vector in vector notation with padding and a label.
+); // (depreciated) Print a vector in vector notation with padding and a label.
+void vec_print_fancy (
+	vec vec,		// target vector.
+	char *label,	// vector label.
+	int padding,	// padding width.
+	const char* color	// styling color.
+); // Print a vector in fancy styling.
 void good_dog (
 	int dog			// dog.
 ); // Print the index of a good dog (not to be confused with bad_dog()).

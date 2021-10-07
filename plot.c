@@ -1,7 +1,12 @@
 // camera = (width, height, distance)
 #include "plot.h"
 #include "string.h"
+#include "vector.h"
+#include <pthread.h>
+//#include "colors.h"
 #include <ncurses.h>
+#include <unistd.h>
+#include <math.h>
 
 /*
 todo:
@@ -150,6 +155,8 @@ canvas *canvas_new(int sizeX, int sizeY, double unit, int clear) {
 	can -> originY = 0;
 	can -> unit = unit;
 	can -> clear = clear;
+	can -> buf_stack = NULL;
+	can -> buf_pointer = 0;
 	return can;
 }
 
@@ -511,14 +518,32 @@ point point_from_vec (vec vector) {
 	return p;
 }
 
-
-
 void plot_vec (canvas *can, vec vector, const char* color) {
 	vector.val[0] *= 8 / can -> unit;
 	vector.val[1] *= 4 / can -> unit;
 	point p = point_from_vec (vector);
 	plot_point(can, p[0], p[1], color);
 	free (p);
+}
+
+void plot_line (canvas *can, vec A, vec B, const char* color) {
+	double len = sqrt(pow(B.val[0] - A.val[0], 2) + pow(B.val[1] - A.val[1], 2));
+	printf("len = %lf\n", len);
+	printf("unit = %lf\n", can->unit);
+	printf("len/unit = %lf\n", len/can->unit);
+	printf("increment = %lf\n", 1.0/(len / (can->unit)));
+	fflush(stdout);
+	for (double i = 0; i < 1; i += 1.0/(len / (can->unit)*8)) {
+		vec C = vec_add (A, vec_mul_const(vec_sub(B, A), i));
+		vec_print_fancy (B, "B", 4, c31);
+		vec_print_fancy (A, "A", 4, c31);
+		vec_print_fancy (vec_sub(B, A), "B - A", 4, c31);
+		plot_vec (can, vec_add (A, vec_mul_const(vec_sub(B, A), i)), color);
+		//system("clear");
+		//display (can);
+		printf("i = %lf\n", i);
+	}
+	plot_vec (can, A, color);
 }
 
 vec* vecs_from_func (double min, double max, double inc, double (*function)(double)) {
@@ -583,13 +608,35 @@ void display_i (canvas* can) {
 			printf("[command not recognized. type `help` for list of commands.]\n");
 	} while(1);
 }
+/*
+void buf_push (canvas *can) {
+	if (can->buf_stack == NULL)
+		can->buf_stack = malloc (sizeof(buffer*));
+	else
+		can->buf_stack = realloc (can->buf_stack, sizeof(buffer*) * (can->buf_pointer + 1));
+	can->buf_stack[can->buf_pointer ++] = can->buf;
+}
+
+buffer buf_pop (canvas *can) {
+	if (buf_pointer == 1) {
+		printf ("error: attempted to push from empty buffer stack. nothing popped.");
+		return;
+	}
+	else {
+		can->buf = can->buf_stack[--(can -> buf_pointer)];
+	}
+}
+*/
 
 int main () {
-	canvas* can = canvas_new(FILL, 32, 1.0, CLEAR);
+	canvas* screen = canvas_new(FILL, FILL, 1.0, DONT_CLEAR);
+
+	canvas* can = canvas_new(screen->sizeX, screen->sizeY - 2, 4.0, DONT_CLEAR);
 	
-	can->unit = 0.5;
-	plot_axis(can, can->sizeX/2, can->sizeY/4);
+	can->unit = 1.0;
+	plot_axis(can, can->sizeX/2, can->sizeY/2);
 	
+	/*
 	vec *square_points = vecs_from_func (-6, 6, 0.02, squared);
 	plot_vecs (can, square_points, c92);
 	
@@ -601,9 +648,43 @@ int main () {
 	
 	vec *sqrt_points = vecs_from_func (-6, 6, 0.02, sqrt);
 	plot_vecs (can, sqrt_points, c94);
+	*/
 
-	plot_logo (can, 32, 8);
+	//plot_logo (can, 32, 8);
 
+/*
+todo:
+ - parse inputs while updating the plot
+ - update the canvas if inputs are received
+*/
+	char chars[10];
+	int charp = 0;
 
-	display_i (can);
+	/*
+	pthread_t threads[2];
+	int thread_args[2];
+	rc
+	*/
+	// 3 threads - one handles the input, another does the plotting, and a third updates the canvas.
+
+	double B[2] = {2,2}, C[2] = {-3, 3};
+	vec vecB = vec_from_arr (B, 2), vecC = vec_from_arr (C, 2);
+	plot_line (can, vecB, vecC, c31);
+	display (can);
+/*
+	for (double t = 0; t < 25; t += 0.05) {
+		double x = t/4 * sin(t);
+		double y = t/4 * cos(t);
+		double point[2] = {x, y};
+		vec A = vec_from_arr (point, 2);
+		//plot_vecs (can, log_points, c93);
+		plot_vec (can, A, cran);
+		system("clear");
+		//canvas_update (getch());
+		display (can);
+		vec_print_fancy(A, "A", 4, c32);
+		fflush(stdout);
+		usleep(25000);
+	}
+	*/
 }

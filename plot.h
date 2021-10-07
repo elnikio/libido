@@ -20,6 +20,8 @@ typedef struct _canvas {
 	int originY;
 	int clear;
 	double unit;
+	buffer *buf_stack;
+	int buf_pointer;
 } canvas;
 #endif
 

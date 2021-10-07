@@ -1,49 +1,79 @@
-#include "array.h"
-// array print functions, get element functions, copy functions, slice functions, size functions, etc.
-/*
-C(w) = cardinality of word - number of possible values a variable word can take.
-C(w) = size of P(w) - size of power set of variable word.
-word size = log(C) - number of bits needed to represent the value of a word.
+#include "set.h"
 
-*/
+set set_random (int size) {
+	set set;
+	double val[size];
+	set.val = val;
+	set.size = size;
+	return set;
+}
 
-// capped arrays :
-typedef struct _carr_capd {
-	char *arr;
-	int size;
-} carr_capd;
-typedef struct _iarr_capd {
-	double *arr;
-	int size;
-} iarr_capd;
-typedef struct _sarr_capd {
-	char **arr;
-	int size;
-} sarr_capd;
-typedef struct _farr_capd {
-	double *arr;
-	int size;
-} farr_capd;
+set set_empty (int size) {
+	set set;
+	double *val = malloc (size * sizeof(double));
+	set.val = val;
+	set.size = size;
+	return set;
+}
 
-// THIS SHIT ISN'T DONE : I JUST COPIED IT FROM LIST.C
-void carr_print (char *list, int format) {
-	if (format == LIST) {
-		int index = 0;
-		while (TRUE) {
-			if (list == 0)
-				break;
-			printf ("[%d] %c\n", index, list -> val);
-			list = list -> next;
-			index ++;
-		}
+set set_define (double *source, int size, bool (*function)(double)) {
+	double *val = malloc (sizeof (source));
+	int i = 0;
+	int j = 0;
+	while (i < size || size == 0) {
+		if (source [i] == '\0' || i == size)
+			break;
+		if (function ((int) source [i ++]))
+			val [j ++] = source [i];
 	}
-	else {
-		while (TRUE) {
-			if (list == 0)
-				break;
-			(list -> next != 0) ? printf ("[ %c ] --> ", list -> val) : printf ("[ %c ]", list -> val);
-			list = list -> next;
-		}
+	val [j] = '\0';
+	set set;
+	set.val = val;
+	set.size = j;
+	return set;
+}
+
+bool set_contains (set set, double target) {
+	for (int i = 0; i < set.size; i ++) {
+		if (set.val[i] == target)
+			return TRUE;
 	}
-	printf ("\n");
+	return FALSE;
+}
+
+set set_union (set set0, set set1) {
+	int i = 0;
+	set out = set_empty (set0.size + set1.size);
+	for (int j = 0; j < set0.size; j ++) {
+		if (!set_contains(out, set0.val[j]))
+			out.val [i ++] = set0.val[j];
+	}
+	for (int j = 0; j < set1.size; j ++) {
+		if (!set_contains(out, set1.val[j]))
+			out.val [i ++] = set1.val[j];
+	}
+	out.size = i;
+	return out;
+}
+
+set set_intersection (set set0, set set1) {
+	int i = 0;
+	set out = set_empty (set0.size);
+	for (int j = 0; j < set0.size; j ++) {
+		if (set_contains (set1, set0.val [j]))
+			out.val [i ++] = set0.val [j];
+	}
+	out.size = i;
+	return out;
+}
+
+set set_difference (set set0, set set1) {
+	int i = 0;
+	set out = set_empty (set0.size);
+	for (int j = 0; j < set0.size; j ++) {
+		if (!set_contains (set1, set0.val [j]))
+			out.val [i ++] = set0.val [j];
+	}
+	out.size = i;
+	return out;
 }
