@@ -44,12 +44,12 @@ int main (int argc, char **argv) {
 	funcs = 0;
 	modules = 0;
 	// header:
-	doc = fopen("./README.md", "w");
+	doc = fopen("./DOC.md.md", "w");
 	fputs ("# **Libido - \\<libido/\\>**\nA C math library.\n\n1. [Installation](#installation)  \n2. [Documentation](#documentation)  \n	2.1. [Vector](#vector)\n---\n# **1. Installation**\n1. Run install.sh, which copies the files to your include directory.\n2. Compile using ./compile.sh.\n---\n# **2. Documentation**\n", doc);
 	fclose (doc);
 
 	// vector:
-	doc = fopen ("./README.md", "a");
+	doc = fopen ("./DOC.md.md", "a");
 	char *vector = "vector.h";
 	generate (doc, vector);
 

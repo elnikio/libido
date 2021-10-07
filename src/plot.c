@@ -429,7 +429,7 @@ int plot_uni(canvas *can, int X, int Y, const char* color, char* text) {
 	return 0;
 }
 
-int plot_axis(canvas *can, int originX, int originY) {
+int plot_axes(canvas *can, int originX, int originY) {
 
 	can -> originX = originX;
 	can -> originY = originY;
@@ -528,20 +528,11 @@ void plot_vec (canvas *can, vec vector, const char* color) {
 
 void plot_line (canvas *can, vec A, vec B, const char* color) {
 	double len = sqrt(pow(B.val[0] - A.val[0], 2) + pow(B.val[1] - A.val[1], 2));
-	printf("len = %lf\n", len);
-	printf("unit = %lf\n", can->unit);
-	printf("len/unit = %lf\n", len/can->unit);
-	printf("increment = %lf\n", 1.0/(len / (can->unit)));
-	fflush(stdout);
 	for (double i = 0; i < 1; i += 1.0/(len / (can->unit)*8)) {
 		vec C = vec_add (A, vec_mul_const(vec_sub(B, A), i));
-		vec_print_fancy (B, "B", 4, c31);
-		vec_print_fancy (A, "A", 4, c31);
-		vec_print_fancy (vec_sub(B, A), "B - A", 4, c31);
 		plot_vec (can, vec_add (A, vec_mul_const(vec_sub(B, A), i)), color);
 		//system("clear");
 		//display (can);
-		printf("i = %lf\n", i);
 	}
 	plot_vec (can, A, color);
 }
@@ -632,9 +623,10 @@ int main () {
 	canvas* screen = canvas_new(FILL, FILL, 1.0, DONT_CLEAR);
 
 	canvas* can = canvas_new(screen->sizeX, screen->sizeY - 2, 4.0, DONT_CLEAR);
+	free(screen);
 	
 	can->unit = 1.0;
-	plot_axis(can, can->sizeX/2, can->sizeY/2);
+	plot_axes(can, can->sizeX/2, can->sizeY/2);
 	
 	/*
 	vec *square_points = vecs_from_func (-6, 6, 0.02, squared);
