@@ -14,13 +14,6 @@ todo:
     - overlap = FRONT to overwrite buffer
 	- overlap = BACK to write below buffer, i.e. do not overwrite
 */
-
-#define PIXSIZE 32
-#define FILL 0
-#define CLEAR 1
-#define DONT_CLEAR 0
-
-typedef int* point;
 	
 char* c0 = "\033[0;0m";
 const char* c2 = "\033[0;2m";
@@ -388,6 +381,7 @@ int plot_image(canvas* can, int X, int Y, char* img_path) {
 		else
 			posX ++;
 	}
+	canvas_flip_vertical(can);
 }
 
 
@@ -429,7 +423,7 @@ int plot_uni(canvas *can, int X, int Y, const char* color, char* text) {
 	return 0;
 }
 
-int plot_axes(canvas *can, int originX, int originY) {
+void plot_axes(canvas *can, int originX, int originY) {
 
 	can -> originX = originX;
 	can -> originY = originY;
@@ -552,6 +546,7 @@ vec* vecs_from_func (double min, double max, double inc, double (*function)(doub
 	vectors[j].val = NULL;
 	return vectors;
 }
+
 void plot_vecs (canvas *can, vec* vectors, const char* color) {
 	for (int i = 0; vectors[i].val != NULL; i ++)
 		plot_vec (can, vectors[i], color);
@@ -559,13 +554,6 @@ void plot_vecs (canvas *can, vec* vectors, const char* color) {
 
 double squared (double x) {
 	return x * x;
-}
-
-void plot_logo (canvas* can, int X, int Y) {
-	canvas* can_logo = canvas_empty(can->sizeX, can->sizeY, DONT_CLEAR);
-	plot_image(can_logo, X, Y, "text.txt");
-	canvas_flip_vertical(can_logo);
-	canvas_merge(can, can_logo);
 }
 
 int canvas_ctl (canvas *can, char* input) {
@@ -577,6 +565,7 @@ int canvas_ctl (canvas *can, char* input) {
 	else
 		return 1;
 */
+	return 0;
 }
 
 void display_i (canvas* can) {

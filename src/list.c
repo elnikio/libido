@@ -17,7 +17,6 @@ B(P(T)) = {a, b, c}
 base type set = alphabet
 power set = language
 
-People think that the economy is some magic horn of plenty - that it just spits out products and you don't have to do anything. That's incredibly ignorant. If you don't make stuff, there is no stuff. If you don't make something that an AI can't, there won't be anything that an AI can't make. Here's something else - the difference between children and adults is - children consume, adults create. School is the training ground for you to learn how to create. Not only that, but also to train your societal-contribution radar, aka learning to make shit that's valuable. And the awesome thing about being an adult is that you very quickly realize when something you're doing is not valuable. At least that's how it works in real capitalism. Whatever that means.
 */
 
 // test program :

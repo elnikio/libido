@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <math.h>
 
+//const char* c31 = "\033[0;31m";
+
 double squared (double x) {
 	return x * x;
 }
@@ -44,7 +46,7 @@ int main () {
 
 	double B[2] = {2,2}, C[2] = {-3, 3};
 	vec vecB = vec_from_arr (B, 2), vecC = vec_from_arr (C, 2);
-	plot_line (can, vecB, vecC, c31);
+	plot_line (can, vecB, vecC, "\033[0;31m");
 	display (can);
 /*
 	for (double t = 0; t < 25; t += 0.05) {

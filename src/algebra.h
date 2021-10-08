@@ -1,1 +1,0 @@
-#define ALGEBRA_ENUMS 0
