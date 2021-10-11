@@ -2,8 +2,8 @@
 #include <string.h>
 #include <libido/vector.h>
 //#include "colors.h"
-#include <ncurses.h>
-#include <unistd.h>
+//#include <ncurses.h>
+//#include <unistd.h>
 #include <math.h>
 
 //const char* c31 = "\033[0;31m";
@@ -11,7 +11,7 @@
 double squared (double x) {
 	return x * x;
 }
-
+/*
 void plot_logo (canvas* can, int X, int Y) {
 	// Create a new canvas object for the image:
 	canvas* can_logo = canvas_empty(can->sizeX, can->sizeY, DONT_CLEAR);
@@ -26,6 +26,7 @@ void plot_logo (canvas* can, int X, int Y) {
 	// Merge the image canvas with the root canvas:
 	canvas_merge(can, can_logo);
 }
+*/
 
 int main () {
 	// Create a temp canvas object to measure screen size:

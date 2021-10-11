@@ -13,20 +13,24 @@ int main() {
 void mat_print (fmat mat) {
 	printf ("[");
 	for (int iy = 0; iy < mat.size_y; iy ++) {
-		(iy > 0) ? printf (" ") : printf ("");
+		(iy > 0) ? printf (" ") : 0;
+		//(iy > 0) ? printf (" ") : printf ("");
 		for (int ix = 0; ix < mat.size_x; ix ++)
 			(ix < mat.size_x - 1) ? printf ("%g, ", mat.val [iy][ix]) : printf ("%g", mat.val [iy][ix]);
-		(iy < mat.size_y - 1) ? printf ("\n") : printf ("");
+		(iy < mat.size_y - 1) ? printf ("\n") : 0;
+		//(iy < mat.size_y - 1) ? printf ("\n") : printf ("");
 	}
 	printf ("]");
 }
 void mat_print_padded (fmat mat, int padding) {
 	printf ("[");
 	for (int iy = 0; iy < mat.size_y; iy ++) {
-		(iy > 0) ? printf (" ") : printf ("");
+		(iy > 0) ? printf (" ") : 0;
+		//(iy > 0) ? printf (" ") : printf ("");
 		for (int ix = 0; ix < mat.size_x; ix ++)
 			(ix < mat.size_x - 1) ? printf ("%*g, ", padding, mat.val [iy][ix]) : printf ("%*g", padding, mat.val [iy][ix]);
-		(iy < mat.size_y - 1) ? printf ("\n") : printf ("");
+		(iy < mat.size_y - 1) ? printf ("\n") : 0;
+		//(iy < mat.size_y - 1) ? printf ("\n") : printf ("");
 	}
 	printf ("]");
 }

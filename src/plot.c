@@ -1,5 +1,6 @@
 // camera = (width, height, distance)
 #include "plot.h"
+//#include "lite/conio.h"
 #include "string.h"
 #include "vector.h"
 #include <pthread.h>
@@ -14,7 +15,8 @@ todo:
     - overlap = FRONT to overwrite buffer
 	- overlap = BACK to write below buffer, i.e. do not overwrite
 */
-	
+
+int running = 1;
 char* c0 = "\033[0;0m";
 const char* c2 = "\033[0;2m";
 const char* c4 = "\033[0;4m";
@@ -288,8 +290,6 @@ int plot_point(canvas *can, int X, int Y, const char* color) {
 
 int plot_image(canvas* can, int X, int Y, char* img_path) {
 
-	buffer img_buf = buffer_new(FILL, FILL);
-
 	FILE *img = NULL;
 	if ((img = fopen(img_path, "r")) == NULL) {
 		fprintf(stderr, "error opening %s\n", img_path);
@@ -382,6 +382,8 @@ int plot_image(canvas* can, int X, int Y, char* img_path) {
 			posX ++;
 	}
 	canvas_flip_vertical(can);
+
+	return 0;
 }
 
 
@@ -523,7 +525,7 @@ void plot_vec (canvas *can, vec vector, const char* color) {
 void plot_line (canvas *can, vec A, vec B, const char* color) {
 	double len = sqrt(pow(B.val[0] - A.val[0], 2) + pow(B.val[1] - A.val[1], 2));
 	for (double i = 0; i < 1; i += 1.0/(len / (can->unit)*8)) {
-		vec C = vec_add (A, vec_mul_const(vec_sub(B, A), i));
+		//vec C = vec_add (A, vec_mul_const(vec_sub(B, A), i));
 		plot_vec (can, vec_add (A, vec_mul_const(vec_sub(B, A), i)), color);
 		//system("clear");
 		//display (can);
@@ -588,7 +590,7 @@ void display_i (canvas* can) {
 			printf("[command not recognized. type `help` for list of commands.]\n");
 	} while(1);
 }
-/*
+
 void buf_push (canvas *can) {
 	if (can->buf_stack == NULL)
 		can->buf_stack = malloc (sizeof(buffer*));
@@ -597,25 +599,45 @@ void buf_push (canvas *can) {
 	can->buf_stack[can->buf_pointer ++] = can->buf;
 }
 
-buffer buf_pop (canvas *can) {
-	if (buf_pointer == 1) {
+void buf_pop (canvas *can) {
+	if (can->buf_pointer == 1) {
 		printf ("error: attempted to push from empty buffer stack. nothing popped.");
-		return;
+		return NULL;
 	}
 	else {
 		can->buf = can->buf_stack[--(can -> buf_pointer)];
 	}
 }
-*/
 
-int main () {
-	canvas* screen = canvas_new(FILL, FILL, 1.0, DONT_CLEAR);
+void* ctl_loop (void* arg) {
+	char key;
+	while(running) {
+		timeout(1000);
+		key = getch();
+		if (key == 1)
+			running = 0;
+	}
+	return 0;
+}
 
-	canvas* can = canvas_new(screen->sizeX, screen->sizeY - 2, 4.0, DONT_CLEAR);
-	free(screen);
-	
-	can->unit = 1.0;
-	plot_axes(can, can->sizeX/2, can->sizeY/2);
+void wait(double secs) {
+	usleep(1000000 * secs);
+}
+
+int mainER () {
+	/*
+
+	solution to the keyboard loop problem:
+	1. use a keyboard library, which directly parses the keyboard signals, this way I won't have to press Enter.
+	2. use system("stty");
+	3. learn to live with the fact that commands will not be displayed to the user as they type them.
+	4. have one thread loop getch(), filling stdin, and a second thread parsing stdin with FILE functions.
+
+	   
+	*/
+	//system("/bin/stty raw");
+	canvas* screen = canvas_new(FILL, FILL, 1.0, CLEAR);
+
 	
 	/*
 	vec *square_points = vecs_from_func (-6, 6, 0.02, squared);
@@ -640,18 +662,44 @@ todo:
 */
 	char chars[10];
 	int charp = 0;
+	double time = 0;
 
-	/*
-	pthread_t threads[2];
-	int thread_args[2];
-	rc
-	*/
+	pthread_t ctl_thread;
+	pthread_create(&ctl_thread, NULL, ctl_loop, NULL);
+
 	// 3 threads - one handles the input, another does the plotting, and a third updates the canvas.
 
-	double B[2] = {2,2}, C[2] = {-3, 3};
-	vec vecB = vec_from_arr (B, 2), vecC = vec_from_arr (C, 2);
-	plot_line (can, vecB, vecC, c31);
-	display (can);
+	while(running) {
+		canvas* can = canvas_new(screen->sizeX, screen->sizeY - 2, 4.0, CLEAR);
+	
+		can->unit = 1.0;
+		plot_axes(can, can->sizeX/2, can->sizeY/2);
+
+		//double A[2] = {0 + 4 * sin(time), 0 + cos(time)};
+		//vec vecA = vec_from_arr (A, 2);
+
+		double B[2] = {0,4}, C[2] = {8 * cos(time / 2), 4 * cos(time)};
+		vec vecB = vec_from_arr (B, 2), vecC = vec_from_arr (C, 2);
+		plot_line (can, vecB, vecC, c31);
+		plot_vec(can, vecC, c32);
+
+		//double D[2] = {2,2.25}, E[2] = {-3, 3.25};
+		//vec vecD = vec_from_arr (D, 2);
+		//vec vecE = vec_from_arr (E, 2);
+		//plot_line (can, vecD, vecE, c91);
+
+		display (can);
+		fflush(stdout);
+		wait(0.01);
+		time += 0.1;
+	}
+
+	free(screen);
+
+	void* return_from_thread;
+
+	pthread_join(ctl_thread, &return_from_thread);
+	//int retval;
 /*
 	for (double t = 0; t < 25; t += 0.05) {
 		double x = t/4 * sin(t);
@@ -668,4 +716,8 @@ todo:
 		usleep(25000);
 	}
 	*/
+	//system("/bin/stty cooked");
+	//
+	return 0;
 }
+
