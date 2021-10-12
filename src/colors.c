@@ -1,87 +1,39 @@
 #include "colors.h"
+
 /*
-extern const char* c0 = "\033[0;0m";
-extern const char* c3;
-extern const char* c2;
-extern const char* c4;
-extern const char* c7;
-extern const char* c8;
-extern const char* c9;
-extern const char* c30;
-extern const char* c31;
-extern const char* c32;
-extern const char* c33;
-extern const char* c34;
-extern const char* c35;
-extern const char* c36;
-extern const char* c37;
-extern const char* c40;
-extern const char* c41;
-extern const char* c42;
-extern const char* c43;
-extern const char* c44;
-extern const char* c45;
-extern const char* c46;
-extern const char* c47;
-extern const char* c90;
-extern const char* c91;
-extern const char* c92;
-extern const char* c93;
-extern const char* c94;
-extern const char* c95;
-extern const char* c96;
-extern const char* c97;
-extern const char* c100;
-extern const char* c101;
-extern const char* c102;
-extern const char* c103;
-extern const char* c104;
-extern const char* c105;
-extern const char* c106;
-extern const char* c107;
-extern const char* c109;
-extern const char* cran;
+enum _palette {
+	RAND,
+	RED90,
+	RED80,
+	RED70,
+	RED60,	
+	GREEN90,
+	GREEN80,
+	GREEN70,
+	GREEN60,	
+	YELLOW90,
+	YELLOW80,
+	YELLOW70,
+	YELLOW60,	
+	BLUE90,
+	BLUE80,
+	BLUE70,
+	BLUE60,	
+	PINK90,
+	PINK80,
+	PINK70,
+	PINK60,	
+	CYAN90,
+	CYAN80,
+	CYAN70,
+	CYAN60,	
+	WHITE90,
+	WHITE80,
+	WHITE70,
+	WHITE60,	
+	GRAY90,
+	GRAY80,
+	GRAY70,
+	GRAY60
+};
 */
-void colors_init () {
-	char* c0 = "\033[0;0m";
-	char* c2 = "\033[0;2m";
-	char* c3 = "\033[0;3m";
-	char* c4 = "\033[0;4m";
-	char* c7 = "\033[0;7m";
-	char* c8 = "\033[0;8m";
-	char* c9 = "\033[0;9m";
-	char* c30 = "\033[0;30m";
-	const char* c31 = "\033[0;31m";
-	const char* c32 = "\033[0;32m";
-	const char* c33 = "\033[0;33m";
-	const char* c34 = "\033[0;34m";
-	const char* c35 = "\033[0;35m";
-	const char* c36 = "\033[0;36m";
-	const char* c37 = "\033[0;37m";
-	const char* c40 = "\033[0;40m";
-	const char* c41 = "\033[0;41m";
-	const char* c42 = "\033[0;42m";
-	const char* c43 = "\033[0;43m";
-	const char* c44 = "\033[0;44m";
-	const char* c45 = "\033[0;45m";
-	const char* c46 = "\033[0;46m";
-	const char* c47 = "\033[0;47m";
-	const char* c90 = "\033[0;90m";
-	const char* c91 = "\033[0;91m";
-	const char* c92 = "\033[0;92m";
-	const char* c93 = "\033[0;93m";
-	const char* c94 = "\033[0;94m";
-	const char* c95 = "\033[0;95m";
-	const char* c96 = "\033[0;96m";
-	const char* c97 = "\033[0;97m";
-	const char* c100 = "\033[0;100m";
-	const char* c101 = "\033[0;101m";
-	const char* c102 = "\033[0;102m";
-	const char* c103 = "\033[0;103m";
-	const char* c104 = "\033[0;104m";
-	const char* c105 = "\033[0;105m";
-	const char* c106 = "\033[0;106m";
-	const char* c107 = "\033[0;107m";
-	const char* c109 = "\033[0;109m";
-	const char* cran = "R";
-}

@@ -5,11 +5,12 @@
 #include "string.h"
 #include "vector.h"
 #include <pthread.h>
-//#include "colors.h"
+#include "colors.h"
 #include <ncurses.h>
 #include <unistd.h>
 #include <math.h>
 
+/*
 enum _palette {
 	RAND,
 	RED90,
@@ -45,6 +46,7 @@ enum _palette {
 	GRAY70,
 	GRAY60
 };
+*/
 
 enum _palettes {
 	XTERM,
@@ -254,7 +256,7 @@ canvas *canvas_new(int sizeX, int sizeY, double unit, int clear, char PALETTE) {
 
 		pixel* row = malloc(sizeof(pixel) * sizeX);
 		for (int X = 0; X < sizeX; X ++) {
-			row[X] = malloc(PIXSIZE);
+			//row[X] = malloc(PIXSIZE);
 			row[X] = "\033[0;96m \033[0;0m";
 
 			if (X==0&&Y==0)
@@ -384,6 +386,7 @@ void canvas_delete (canvas* can) {
 		free (can -> buf[Y]);
 	}
 	free (can -> buf);
+	free (can -> pal);
 	free (can);
 
 	// free buf_stack loop
@@ -504,7 +507,7 @@ void display(canvas* can) {
 	}
 }
 
-int plot_point_by_ID(canvas *can, int X, int Y, const char colorID) {
+int plot_point(canvas *can, int X, int Y, const char colorID) {
 
 	char* color = parse_colorID(can, colorID);
 
@@ -525,6 +528,7 @@ int plot_point_by_ID(canvas *can, int X, int Y, const char colorID) {
 	return 0;
 }
 
+/*
 int plot_point(canvas *can, int X, int Y, const char* color) {
 	if (color[0] == 'R')
 		color = rand_c ();
@@ -542,6 +546,7 @@ int plot_point(canvas *can, int X, int Y, const char* color) {
 
 	return 0;
 }
+*/
 
 int plot_image(canvas* can, int X, int Y, char* img_path) {
 
@@ -560,71 +565,71 @@ int plot_image(canvas* can, int X, int Y, char* img_path) {
 
 			// black
 			case 'o':
-				plot_point(can, posX, posY, c31);
+				plot_point(can, posX, posY, GRAY60);
 				break;
 
 			// dark
 			case 'd':
-				plot_point(can, posX, posY, c30);
+				plot_point(can, posX, posY, GRAY90);
 				break;
 			case 'D':
-				plot_point(can, posX, posY, c90);
+				plot_point(can, posX, posY, GRAY80);
 				break;
 
 			// red
 			case 'r':
-				plot_point(can, posX, posY, c31);
+				plot_point(can, posX, posY, RED90);
 				break;
 			case 'R':
-				plot_point(can, posX, posY, c91);
+				plot_point(can, posX, posY, RED80);
 				break;
 
 			// green
 			case 'g':
-				plot_point(can, posX, posY, c32);
+				plot_point(can, posX, posY, GREEN90);
 				break;
 			case 'G':
-				plot_point(can, posX, posY, c92);
+				plot_point(can, posX, posY, GREEN80);
 				break;
 
 			// yellow
 			case 'y':
-				plot_point(can, posX, posY, c33);
+				plot_point(can, posX, posY, YELLOW90);
 				break;
 			case 'Y':
-				plot_point(can, posX, posY, c93);
+				plot_point(can, posX, posY, YELLOW80);
 				break;
 
 			// blue
 			case 'b':
-				plot_point(can, posX, posY, c34);
+				plot_point(can, posX, posY, BLUE90);
 				break;
 			case 'B':
-				plot_point(can, posX, posY, c94);
+				plot_point(can, posX, posY, BLUE80);
 				break;
 
 			// purple
 			case 'p':
-				plot_point(can, posX, posY, c35);
+				plot_point(can, posX, posY, PINK90);
 				break;
 			case 'P':
-				plot_point(can, posX, posY, c95);
+				plot_point(can, posX, posY, PINK80);
 				break;
 
 			// cyan
 			case 'c':
-				plot_point(can, posX, posY, c36);
+				plot_point(can, posX, posY, CYAN90);
 				break;
 			case 'C':
-				plot_point(can, posX, posY, c96);
+				plot_point(can, posX, posY, CYAN80);
 				break;
 
 			// white
 			case 'w':
-				plot_point(can, posX, posY, c37);
+				plot_point(can, posX, posY, WHITE90);
 				break;
 			case 'W':
-				plot_point(can, posX, posY, c97);
+				plot_point(can, posX, posY, WHITE80);
 				break;
 
 		}
@@ -637,6 +642,7 @@ int plot_image(canvas* can, int X, int Y, char* img_path) {
 			posX ++;
 	}
 	canvas_flip_vertical(can);
+	fclose(img);
 
 	return 0;
 }
@@ -769,23 +775,23 @@ point point_from_vec (vec vector) {
 	return p;
 }
 
-void plot_vec (canvas *can, vec vector, const char* color) {
+void plot_vec (canvas *can, vec vector, const char colorID) {
 	vector.val[0] *= 8 / can -> unit;
 	vector.val[1] *= 4 / can -> unit;
 	point p = point_from_vec (vector);
-	plot_point(can, p[0], p[1], color);
+	plot_point(can, p[0], p[1], colorID);
 	free (p);
 }
 
-void plot_line (canvas *can, vec A, vec B, const char* color) {
+void plot_line (canvas *can, vec A, vec B, const char colorID) {
 	double len = sqrt(pow(B.val[0] - A.val[0], 2) + pow(B.val[1] - A.val[1], 2));
 	for (double i = 0; i < 1; i += 1.0/(len / (can->unit)*8)) {
 		//vec C = vec_add (A, vec_mul_const(vec_sub(B, A), i));
-		plot_vec (can, vec_add (A, vec_mul_const(vec_sub(B, A), i)), color);
+		plot_vec (can, vec_add (A, vec_mul_const(vec_sub(B, A), i)), colorID);
 		//system("clear");
 		//display (can);
 	}
-	plot_vec (can, A, color);
+	plot_vec (can, A, colorID);
 }
 
 vec* vecs_from_func (double min, double max, double inc, double (*function)(double)) {
@@ -804,9 +810,9 @@ vec* vecs_from_func (double min, double max, double inc, double (*function)(doub
 	return vectors;
 }
 
-void plot_vecs (canvas *can, vec* vectors, const char* color) {
+void plot_vecs (canvas *can, vec* vectors, const char colorID) {
 	for (int i = 0; vectors[i].val != NULL; i ++)
-		plot_vec (can, vectors[i], color);
+		plot_vec (can, vectors[i], colorID);
 }
 
 double squared (double x) {
@@ -883,12 +889,31 @@ int main () {
 	/*
 
 	solution to the keyboard loop problem:
-	1. use a keyboard library, which directly parses the keyboard signals, this way I won't have to press Enter.
-	2. use system("stty");
-	3. learn to live with the fact that commands will not be displayed to the user as they type them.
-	4. have one thread loop getch(), filling stdin, and a second thread parsing stdin with FILE functions.
+	1.	use a keyboard library, which directly parses the keyboard signals, this way I won't have to press Enter.
+	2.	use system("stty");
+	3.	learn to live with the fact that commands will not be displayed to the user as they type them.
+	4.	have one thread loop getch(), filling stdin, and a second thread parsing stdin with FILE functions.
 
-	   
+	solution to the buffer free()-ing problem:
+	1.	make sure all PIXELS are allocated with malloc, so they can all be freed at the end without invalid pointer error.
+	 
+  	freeing memory:
+	1.	char* string = malloc(10);
+		free(string);
+		string = "doctor"; <-- create automatic string and set pointer to point it
+	2.	char* string = malloc(10);
+		sprintf(string, "doctor"); <-- copied string into allocated memory
+		free(string);
+	3.	char* string = malloc(10);
+		strcpy(string, "doctor"); <-- copied string into allocated memory
+		free(string);
+
+	thick-line algorithm:
+	0.	define line radius R.
+	1.	iterate through all pixels.
+	2.	compute disstance from pixel to line.
+	3.	shading range = [R - (UNIT * 8)/2, R + (UNIT * 8)/2].
+	4.	color pixel.
 	*/
 	//system("/bin/stty raw");
 	canvas* screen = canvas_new(FILL, FILL, 1.0, DONT_CLEAR, XTERM);
@@ -919,12 +944,12 @@ todo:
 	int charp = 0;
 	double time = 0;
 
-	pthread_t ctl_thread;
-	pthread_create(&ctl_thread, NULL, ctl_loop, NULL);
+	//pthread_t ctl_thread;
+	//pthread_create(&ctl_thread, NULL, ctl_loop, NULL);
 
 	// 3 threads - one handles the input, another does the plotting, and a third updates the canvas.
 
-	while(running) {
+	while(running && time < 10) {
 		canvas* can = canvas_new(screen->sizeX, screen->sizeY - 2, 4.0, CLEAR, XTERM);
 	
 		can->unit = 1.0;
@@ -935,8 +960,8 @@ todo:
 
 		double B[2] = {0,4}, C[2] = {8 * cos(time / 2), 4 * cos(time)};
 		vec vecB = vec_from_arr (B, 2), vecC = vec_from_arr (C, 2);
-		plot_line (can, vecB, vecC, c31);
-		plot_vec(can, vecC, c32);
+		plot_line (can, vecB, vecC, CYAN90);
+		plot_vec(can, vecC, RED90);
 
 		//double D[2] = {2,2.25}, E[2] = {-3, 3.25};
 		//vec vecD = vec_from_arr (D, 2);
@@ -944,11 +969,7 @@ todo:
 		//plot_line (can, vecD, vecE, c91);
 		//
 
-		plot_palette_xterm (can, 2, -19);
-		plot_palette_gnome (can, 11, -19);
-		plot_palette_linux (can, 20, -19);
-		plot_palette_rxvt (can, 29, -19);
-		plot_palette_slrzd (can, 38, -19);
+		plot_palette (can, 2, -19);
 
 		display (can);
 		fflush(stdout);
@@ -960,11 +981,11 @@ todo:
 
 	free(screen);
 
-	void* return_from_thread;
+	//void* return_from_thread;
 
-	pthread_join(ctl_thread, &return_from_thread);
+	//pthread_join(ctl_thread, &return_from_thread);
 	//int retval;
-/*
+	/*
 	for (double t = 0; t < 25; t += 0.05) {
 		double x = t/4 * sin(t);
 		double y = t/4 * cos(t);
@@ -982,6 +1003,7 @@ todo:
 	*/
 	//system("/bin/stty cooked");
 	//
+	printf("WE'RE AT THE END, BABY!");
 	return 0;
 }
 

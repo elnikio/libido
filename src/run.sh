@@ -1,4 +1,4 @@
 #!/bin/bash
 #gcc main.c /usr/include/libido/libido.a -lGL -lGLU -lGLEW -lglut -lm -g -Wall
 #gcc doctor.c arithmetic.c generic.c plot.c set.c vector.c string.c -lGL -lGLU -lGLEW -lglut -lm -g -Wall
-sudo gcc plot.c plot_templates.c string.c vector.c -g -lido -lm -lncurses -pthread
+sudo gcc plot.c colors.c plot_templates.c string.c vector.c -g -lido -lm -lncurses -pthread

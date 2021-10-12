@@ -142,7 +142,7 @@ int plot_point (
 	canvas *can,
 	int X,
 	int Y,
-	const char* color
+	const char colorID
 );
 
 int plot_image (
@@ -175,14 +175,14 @@ int plot_string (
 void plot_vec (
 	canvas *can,
 	vec vector,
-	const char* color
+	const char colorID
 );
 
 void plot_line (
 	canvas *can,
 	vec A,
 	vec B,
-	const char* color
+	const char colorID
 );
 
 vec* vecs_from_func (
@@ -195,7 +195,7 @@ vec* vecs_from_func (
 void plot_vecs (
 	canvas* can,
 	vec* vectors,
-	const char* color
+	const char colorID
 );
 
 int plot_uni (

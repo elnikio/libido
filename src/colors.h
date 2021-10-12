@@ -1,43 +1,41 @@
-extern char* c0;
-extern char* c3;
-extern char* c2;
-extern char* c4;
-extern char* c7;
-extern char* c8;
-extern char* c9;
-extern char* c30;
-extern const char* c31;
-extern const char* c32;
-extern const char* c33;
-extern const char* c34;
-extern const char* c35;
-extern const char* c36;
-extern const char* c37;
-extern const char* c40;
-extern const char* c41;
-extern const char* c42;
-extern const char* c43;
-extern const char* c44;
-extern const char* c45;
-extern const char* c46;
-extern const char* c47;
-extern const char* c90;
-extern const char* c91;
-extern const char* c92;
-extern const char* c93;
-extern const char* c94;
-extern const char* c95;
-extern const char* c96;
-extern const char* c97;
-extern const char* c100;
-extern const char* c101;
-extern const char* c102;
-extern const char* c103;
-extern const char* c104;
-extern const char* c105;
-extern const char* c106;
-extern const char* c107;
-extern const char* c109;
-extern const char* cran;
+// much empty
 
-void colors_init ();
+#ifndef COLORS
+enum _palette {
+	RAND,
+	RED90,
+	RED80,
+	RED70,
+	RED60,	
+	GREEN90,
+	GREEN80,
+	GREEN70,
+	GREEN60,	
+	YELLOW90,
+	YELLOW80,
+	YELLOW70,
+	YELLOW60,	
+	BLUE90,
+	BLUE80,
+	BLUE70,
+	BLUE60,	
+	PINK90,
+	PINK80,
+	PINK70,
+	PINK60,	
+	CYAN90,
+	CYAN80,
+	CYAN70,
+	CYAN60,	
+	WHITE90,
+	WHITE80,
+	WHITE70,
+	WHITE60,	
+	GRAY90,
+	GRAY80,
+	GRAY70,
+	GRAY60
+};
+#endif
+
+#define COLORS
