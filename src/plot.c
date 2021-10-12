@@ -777,7 +777,17 @@ point point_from_vec (vec vector) {
 	return p;
 }
 
-void plot_vec (canvas *can, vec vector, const char colorID) {
+vec vec_from_point (canvas* can, point p) {
+	p[0] /= 8;
+	p[1] /= 4;
+	p[0] *= can -> unit;
+	p[1] *= can -> unit;
+	double arr[2] = {p[0], p[1]};
+	vec vec = vec_from_arr (arr, 2);
+	return vec;
+}
+
+void plot_vec (canvas* can, vec vector, const char colorID) {
 	vector.val[0] *= 8 / can -> unit;
 	vector.val[1] *= 4 / can -> unit;
 	point p = point_from_vec (vector);
@@ -904,6 +914,8 @@ void wait(double secs) {
 	usleep(1000000 * secs);
 }
 
+//double point_vec_dist (canvas
+
 int main () {
 	/*
 
@@ -987,8 +999,19 @@ todo:
 		//vec vecE = vec_from_arr (E, 2);
 		//plot_line (can, vecD, vecE, c91);
 		//
+		//double A[2] = {-2, 2};
+		//vec vecA = vec_from_arr (A, 2);
+		//plot_vec(can, vecA, RED90);
+		//point pA = point_from_vec (vecA);
+		//plot_point(can, pA[0], pA[1], RED60);
+		// make point and vec constructors, which take canvas* can as parameter and store the points and canvases
+		// in arrays inside struct _canvas so they can then be easily freed inside canvas_delete(), instead of manually.
 
 		plot_palette (can, 2, -19);
+		
+		int P[2] = {-8, -4};
+		vec uman = vec_from_point (can, P);
+		plot_vec(can, uman, GREEN90);
 
 		display (can);
 		fflush(stdout);
@@ -996,6 +1019,7 @@ todo:
 		time += 0.1;
 
 		canvas_delete (can);
+		//free(pA);
 	}
 
 	canvas_delete (screen);
