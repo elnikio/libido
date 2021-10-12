@@ -16,6 +16,42 @@
 typedef int* point;
 typedef char*** buffer;
 typedef char* pixel;
+
+typedef struct palette {
+	char* red90;
+	char* red80;
+	char* red70;
+	char* red60;	
+	char* green90;
+	char* green80;
+	char* green70;
+	char* green60;	
+	char* yellow90;
+	char* yellow80;
+	char* yellow70;
+	char* yellow60;	
+	char* blue90;
+	char* blue80;
+	char* blue70;
+	char* blue60;	
+	char* pink90;
+	char* pink80;
+	char* pink70;
+	char* pink60;	
+	char* cyan90;
+	char* cyan80;
+	char* cyan70;
+	char* cyan60;	
+	char* white90;
+	char* white80;
+	char* white70;
+	char* white60;	
+	char* gray90;
+	char* gray80;
+	char* gray70;
+	char* gray60;
+} palette;
+
 typedef struct _canvas {
 	buffer buf;
 	int sizeX;
@@ -28,8 +64,9 @@ typedef struct _canvas {
 	int originY;
 	int clear;
 	double unit;
-	buffer *buf_stack;
+	buffer* buf_stack;
 	int buf_pointer;
+	palette* pal;
 } canvas;
 #endif
 
@@ -46,7 +83,12 @@ canvas *canvas_new (
 	int sizeX,
 	int sizeY,
 	double unit,
-	int clear
+	int clear,
+	char palette
+);
+
+void canvas_delete (
+	canvas* can
 );
 
 canvas *canvas_empty (

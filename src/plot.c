@@ -1,5 +1,6 @@
 // camera = (width, height, distance)
 #include "plot.h"
+#include "plot_templates.h"
 //#include "lite/conio.h"
 #include "string.h"
 #include "vector.h"
@@ -9,6 +10,50 @@
 #include <unistd.h>
 #include <math.h>
 
+enum _palette {
+	RAND,
+	RED90,
+	RED80,
+	RED70,
+	RED60,	
+	GREEN90,
+	GREEN80,
+	GREEN70,
+	GREEN60,	
+	YELLOW90,
+	YELLOW80,
+	YELLOW70,
+	YELLOW60,	
+	BLUE90,
+	BLUE80,
+	BLUE70,
+	BLUE60,	
+	PINK90,
+	PINK80,
+	PINK70,
+	PINK60,	
+	CYAN90,
+	CYAN80,
+	CYAN70,
+	CYAN60,	
+	WHITE90,
+	WHITE80,
+	WHITE70,
+	WHITE60,	
+	GRAY90,
+	GRAY80,
+	GRAY70,
+	GRAY60
+};
+
+enum _palettes {
+	XTERM,
+	GNOME,
+	LINUX,
+	RXVT,
+	SLRZD
+};
+
 /*
 todo:
  - add overlap parameter to all plotting functions:
@@ -16,48 +61,54 @@ todo:
 	- overlap = BACK to write below buffer, i.e. do not overwrite
 */
 
-int running = 1;
-char* c0 = "\033[0;0m";
-const char* c2 = "\033[0;2m";
-const char* c4 = "\033[0;4m";
-const char* c7 = "\033[0;7m";
-const char* c8 = "\033[0;8m";
-const char* c9 = "\033[0;9m";
-const char* c30 = "\033[0;30m";
-const char* c31 = "\033[0;31m";
-const char* c32 = "\033[0;32m";
-const char* c33 = "\033[0;33m";
-const char* c34 = "\033[0;34m";
-const char* c35 = "\033[0;35m";
-const char* c36 = "\033[0;36m";
-const char* c37 = "\033[0;37m";
-const char* c40 = "\033[0;40m";
-const char* c41 = "\033[0;41m";
-const char* c42 = "\033[0;42m";
-const char* c43 = "\033[0;43m";
-const char* c44 = "\033[0;44m";
-const char* c45 = "\033[0;45m";
-const char* c46 = "\033[0;46m";
-const char* c47 = "\033[0;47m";
-const char* c90 = "\033[0;90m";
-const char* c91 = "\033[0;91m";
-const char* c92 = "\033[0;92m";
-const char* c93 = "\033[0;93m";
-const char* c94 = "\033[0;94m";
-const char* c95 = "\033[0;95m";
-const char* c96 = "\033[0;96m";
-const char* c97 = "\033[0;97m";
-const char* c100 = "\033[0;100m";
-const char* c101 = "\033[0;101m";
-const char* c102 = "\033[0;102m";
-const char* c103 = "\033[0;103m";
-const char* c104 = "\033[0;104m";
-const char* c105 = "\033[0;105m";
-const char* c106 = "\033[0;106m";
-const char* c107 = "\033[0;107m";
-const char* c109 = "\033[0;109m";
-const char* cran = "R";
+char* r0 = "2;49;31\0"; // darkest
+char* r24991 = "2;49;91\0";
+char* r44931 = "4;49;31\0";
+char* r44991 = "4;49;91\0"; // brightest
 
+int running = 1;
+static const char* c0 = "\033[0;0m";
+static const char* c1 = "\033[0;1m";
+static const char* c2 = "\033[0;2m";
+static const char* c3 = "\033[0;3m";
+static const char* c4 = "\033[0;4m";
+static const char* c7 = "\033[0;7m";
+static const char* c8 = "\033[0;8m";
+static const char* c9 = "\033[0;9m";
+static const char* c30 = "\033[0;30m";
+static const char* c31 = "\033[0;31m";
+static const char* c32 = "\033[0;32m";
+static const char* c33 = "\033[0;33m";
+static const char* c34 = "\033[0;34m";
+static const char* c35 = "\033[0;35m";
+static const char* c36 = "\033[0;36m";
+static const char* c37 = "\033[0;37m";
+static const char* c40 = "\033[0;40m";
+static const char* c41 = "\033[0;41m";
+static const char* c42 = "\033[0;42m";
+static const char* c43 = "\033[0;43m";
+static const char* c44 = "\033[0;44m";
+static const char* c45 = "\033[0;45m";
+static const char* c46 = "\033[0;46m";
+static const char* c47 = "\033[0;47m";
+static const char* c90 = "\033[0;90m";
+static const char* c91 = "\033[0;91m";
+static const char* c92 = "\033[0;92m";
+static const char* c93 = "\033[0;93m";
+static const char* c94 = "\033[0;94m";
+static const char* c95 = "\033[0;95m";
+static const char* c96 = "\033[0;96m";
+static const char* c97 = "\033[0;97m";
+static const char* c100 = "\033[0;100m";
+static const char* c101 = "\033[0;101m";
+static const char* c102 = "\033[0;102m";
+static const char* c103 = "\033[0;103m";
+static const char* c104 = "\033[0;104m";
+static const char* c105 = "\033[0;105m";
+static const char* c106 = "\033[0;106m";
+static const char* c107 = "\033[0;107m";
+static const char* c109 = "\033[0;109m";
+static const char* cran = "R";
 char* rand_c () {
 	int num = rand() % 6 + 1;
 	char *c = NULL;
@@ -103,7 +154,91 @@ struct winsize window_size() {
 	return w;
 }
 
-canvas *canvas_new(int sizeX, int sizeY, double unit, int clear) {
+/*
+typedef struct _palette {
+	char* red90;
+	char* red80;
+	char* red70;
+	char* red60;	
+	char* green90;
+	char* green80;
+	char* green70;
+	char* green60;	
+	char* yellow90;
+	char* yellow80;
+	char* yellow70;
+	char* yellow60;	
+	char* blue90;
+	char* blue80;
+	char* blue70;
+	char* blue60;	
+	char* pink90;
+	char* pink80;
+	char* pink70;
+	char* pink60;	
+	char* cyan90;
+	char* cyan80;
+	char* cyan70;
+	char* cyan60;
+	char* white90;
+	char* white80;
+	char* white70;
+	char* white60;	
+	char* gray90;
+	char* gray80;
+	char* gray70;
+	char* gray60;
+} palette;
+*/
+
+char* parse_colorID(canvas* can, char colorID) {
+	switch (colorID) {
+		case RED90: return can->pal->red90;
+		case RED80: return can->pal->red80;
+		case RED70: return can->pal->red70;
+		case RED60: return can->pal->red60;
+		case GREEN90: return can->pal->green90;
+		case GREEN80: return can->pal->green80;
+		case GREEN70: return can->pal->green70;
+		case GREEN60: return can->pal->green60;
+		case YELLOW90: return can->pal->yellow90;
+		case YELLOW80: return can->pal->yellow80;
+		case YELLOW70: return can->pal->yellow70;
+		case YELLOW60: return can->pal->yellow60;
+		case BLUE90: return can->pal->blue90;
+		case BLUE80: return can->pal->blue80;
+		case BLUE70: return can->pal->blue70;
+		case BLUE60: return can->pal->blue60;
+		case PINK90: return can->pal->pink90;
+		case PINK80: return can->pal->pink80;
+		case PINK70: return can->pal->pink70;
+		case PINK60: return can->pal->pink60;
+		case CYAN90: return can->pal->cyan90;
+		case CYAN80: return can->pal->cyan80;
+		case CYAN70: return can->pal->cyan70;
+		case CYAN60: return can->pal->cyan60;
+		case WHITE90: return can->pal->white90;
+		case WHITE80: return can->pal->white80;
+		case WHITE70: return can->pal->white70;
+		case WHITE60: return can->pal->white60;
+		case GRAY90: return can->pal->gray90;
+		case GRAY80: return can->pal->gray80;
+		case GRAY70: return can->pal->gray70;
+		case GRAY60: return can->pal->gray60;
+		default: return can->pal->white90;
+	}
+}
+
+void swap_strings (char* str1, char* str2) {
+	char temp[10];
+	strcpy (temp, str1);
+	strcpy (str1, str2);
+	strcpy (str2, temp);
+}
+
+canvas *canvas_new(int sizeX, int sizeY, double unit, int clear, char PALETTE) {
+
+	// handle canvas size:
 	struct winsize ws = window_size();
 	if (sizeX == FILL) {
 		sizeX = ws.ws_col;
@@ -112,6 +247,7 @@ canvas *canvas_new(int sizeX, int sizeY, double unit, int clear) {
 		sizeY = ws.ws_row - 1;
 	}
 
+	// handle draw buffer:
 	buffer buf = malloc(sizeY * sizeof(pixel*));
 
 	for (int Y = 0; Y < sizeY; Y ++) {
@@ -119,7 +255,7 @@ canvas *canvas_new(int sizeX, int sizeY, double unit, int clear) {
 		pixel* row = malloc(sizeof(pixel) * sizeX);
 		for (int X = 0; X < sizeX; X ++) {
 			row[X] = malloc(PIXSIZE);
-			row[X] = "\033[0;30m█\033[0;0m";
+			row[X] = "\033[0;96m \033[0;0m";
 
 			if (X==0&&Y==0)
 				row[X] = "\033[0;31m╚\033[0;0m";
@@ -138,6 +274,87 @@ canvas *canvas_new(int sizeX, int sizeY, double unit, int clear) {
 
 		buf[Y] = row;
 	}
+
+	// handle color palette:
+	if (PALETTE < XTERM || PALETTE > SLRZD) {
+		printf ("error: incorrect palette name fed to canvas constructor. returning NULL.\n");
+		return NULL;
+	}
+
+	palette *pal = malloc(sizeof(palette));
+
+	pal -> gray60 = "\033[2;49;30m";
+	pal -> gray70 = "\033[4;49;30m";
+	pal -> gray80 = "\033[2;49;90m";
+	pal -> gray90 = "\033[4;49;90m";
+	pal -> red60 = "\033[2;49;31m";
+	pal -> red70 = "\033[2;49;91m";
+	pal -> red80 = "\033[4;49;31m";
+	pal -> red90 = "\033[4;49;91m";
+	pal -> green90 =  "\033[2;49;32m";
+	pal -> green80 = "\033[2;49;92m";
+	pal -> green70 = "\033[4;49;32m";
+	pal -> green60 = "\033[4;49;92m";
+	pal -> yellow90 = "\033[2;49;33m";
+	pal -> yellow80 = "\033[2;49;93m";
+	pal -> yellow70 = "\033[4;49;33m";
+	pal -> yellow60 = "\033[4;49;93m";
+	pal -> blue90 = "\033[2;49;34m";
+	pal -> blue80 = "\033[4;49;34m";
+	pal -> blue70 = "\033[2;49;94m";
+	pal -> blue60 = "\033[4;49;94m";
+	pal -> pink90 = "\033[2;49;35m";
+	pal -> pink80 = "\033[2;49;95m";
+	pal -> pink70 = "\033[4;49;35m";
+	pal -> pink60 = "\033[4;49;95m";
+	pal -> cyan90 = "\033[2;49;36m";
+	pal -> cyan80 = "\033[2;49;96m";
+	pal -> cyan70 = "\033[4;49;36m";
+	pal -> cyan60 = "\033[4;49;96m";
+	pal -> white90 = "\033[2;49;37m";
+	pal -> white80 = "\033[2;49;97m";
+	pal -> white70 = "\033[4;49;37m";
+	pal -> white60 = "\033[4;49;97m";
+
+	switch (PALETTE) {
+
+		case XTERM:
+			break;
+
+		case GNOME:
+			swap_strings (pal -> red70, pal -> red80);
+			break;
+
+		case LINUX:
+			swap_strings (pal -> pink70, pal -> pink80);
+			swap_strings (pal -> yellow70, pal -> yellow80);
+			swap_strings (pal -> green70, pal -> green80);
+			swap_strings (pal -> red70, pal -> red80);
+			break;
+
+		case RXVT:
+			swap_strings (pal -> blue70, pal -> red80);
+			break;
+
+		case SLRZD:
+			strcpy (pal -> cyan70, pal -> cyan60);
+			strcpy (pal -> cyan90, pal -> cyan80);
+			strcpy (pal -> pink70, pal -> pink60);
+			strcpy (pal -> pink90, pal -> pink80);
+			strcpy (pal -> blue70, pal -> blue60);
+			strcpy (pal -> blue90, pal -> blue80);
+			strcpy (pal -> yellow70, pal -> yellow60);
+			strcpy (pal -> yellow90, pal -> yellow80);
+			strcpy (pal -> green70, pal -> green60);
+			strcpy (pal -> green90, pal -> green80);
+			strcpy (pal -> red70, pal -> red60);
+			strcpy (pal -> red90, pal -> red80);
+			swap_strings (pal -> gray60, pal -> gray80);
+			swap_strings (pal -> gray70, pal -> gray90);
+			break;
+	}
+
+	// handle the rest:
 	canvas *can = malloc(sizeof (canvas));
 	can -> buf = buf;
 	can -> sizeX = sizeX;
@@ -152,7 +369,24 @@ canvas *canvas_new(int sizeX, int sizeY, double unit, int clear) {
 	can -> clear = clear;
 	can -> buf_stack = NULL;
 	can -> buf_pointer = 0;
+	can -> pal = pal;
 	return can;
+}
+
+void canvas_delete (canvas* can) {
+
+	for (int Y = 0; Y < can -> sizeY; Y ++) {
+		/*
+		for (int X = 0; X < can -> sizeX; X ++) {
+			free (can -> buf[Y][X]);
+		}
+		*/
+		free (can -> buf[Y]);
+	}
+	free (can -> buf);
+	free (can);
+
+	// free buf_stack loop
 }
 
 canvas *canvas_empty(int sizeX, int sizeY, int clear) {
@@ -268,6 +502,27 @@ void display(canvas* can) {
 			printf("%s", can -> buf[Y][X]);
 		printf("\033[0;0m\n");
 	}
+}
+
+int plot_point_by_ID(canvas *can, int X, int Y, const char colorID) {
+
+	char* color = parse_colorID(can, colorID);
+
+	if (colorID == RAND)
+		color = rand_c ();
+	if (
+		X <= can -> minX ||
+		X >= can -> maxX ||
+		Y <= can -> minY ||
+		Y >= can -> maxY
+	) return 1;
+
+	if (point_visible(can, X, Y)) {
+		can -> buf[Y+can->originY][X+can->originX] = malloc(PIXSIZE);
+		sprintf(can -> buf[Y+can->originY][X+can->originX], "%s█%s", color, c0);
+	}
+
+	return 0;
 }
 
 int plot_point(canvas *can, int X, int Y, const char* color) {
@@ -599,10 +854,10 @@ void buf_push (canvas *can) {
 	can->buf_stack[can->buf_pointer ++] = can->buf;
 }
 
-void buf_pop (canvas *can) {
+int buf_pop (canvas *can) {
 	if (can->buf_pointer == 1) {
 		printf ("error: attempted to push from empty buffer stack. nothing popped.");
-		return NULL;
+		return 1;
 	}
 	else {
 		can->buf = can->buf_stack[--(can -> buf_pointer)];
@@ -624,7 +879,7 @@ void wait(double secs) {
 	usleep(1000000 * secs);
 }
 
-int mainER () {
+int main () {
 	/*
 
 	solution to the keyboard loop problem:
@@ -636,7 +891,7 @@ int mainER () {
 	   
 	*/
 	//system("/bin/stty raw");
-	canvas* screen = canvas_new(FILL, FILL, 1.0, CLEAR);
+	canvas* screen = canvas_new(FILL, FILL, 1.0, DONT_CLEAR, XTERM);
 
 	
 	/*
@@ -670,7 +925,7 @@ todo:
 	// 3 threads - one handles the input, another does the plotting, and a third updates the canvas.
 
 	while(running) {
-		canvas* can = canvas_new(screen->sizeX, screen->sizeY - 2, 4.0, CLEAR);
+		canvas* can = canvas_new(screen->sizeX, screen->sizeY - 2, 4.0, CLEAR, XTERM);
 	
 		can->unit = 1.0;
 		plot_axes(can, can->sizeX/2, can->sizeY/2);
@@ -687,11 +942,20 @@ todo:
 		//vec vecD = vec_from_arr (D, 2);
 		//vec vecE = vec_from_arr (E, 2);
 		//plot_line (can, vecD, vecE, c91);
+		//
+
+		plot_palette_xterm (can, 2, -19);
+		plot_palette_gnome (can, 11, -19);
+		plot_palette_linux (can, 20, -19);
+		plot_palette_rxvt (can, 29, -19);
+		plot_palette_slrzd (can, 38, -19);
 
 		display (can);
 		fflush(stdout);
 		wait(0.01);
 		time += 0.1;
+
+		canvas_delete (can);
 	}
 
 	free(screen);
