@@ -52,6 +52,13 @@ typedef struct palette {
 	char* gray60;
 } palette;
 
+#define COLORNUM 32
+
+typedef struct _colormap {
+	char* color;
+	char colorID;
+} colormap;
+
 typedef struct _canvas {
 	buffer buf;
 	int sizeX;
@@ -67,6 +74,7 @@ typedef struct _canvas {
 	buffer* buf_stack;
 	int buf_pointer;
 	palette* pal;
+	colormap** colordict;
 } canvas;
 #endif
 
@@ -161,6 +169,7 @@ int plot_char (
 );
 
 point point_from_vec (
+	canvas* can,
 	vec vector
 );
 

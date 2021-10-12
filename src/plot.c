@@ -13,34 +13,42 @@
 /*
 enum _palette {
 	RAND,
+	RED,
 	RED90,
 	RED80,
 	RED70,
-	RED60,	
+	RED60,
+	GREEN.
 	GREEN90,
 	GREEN80,
 	GREEN70,
-	GREEN60,	
+	GREEN60,
+	YELLOW,
 	YELLOW90,
 	YELLOW80,
 	YELLOW70,
-	YELLOW60,	
+	YELLOW60,
+	BLUE,
 	BLUE90,
 	BLUE80,
 	BLUE70,
-	BLUE60,	
+	BLUE60,
+	PINK,
 	PINK90,
 	PINK80,
 	PINK70,
-	PINK60,	
+	PINK60,
+	CYAN,
 	CYAN90,
 	CYAN80,
 	CYAN70,
-	CYAN60,	
+	CYAN60,
+	WHITE,
 	WHITE90,
 	WHITE80,
 	WHITE70,
-	WHITE60,	
+	WHITE60,
+	GRAY,
 	GRAY90,
 	GRAY80,
 	GRAY70,
@@ -139,6 +147,49 @@ char* rand_c () {
 	return c;
 }
 
+char shade_from_colorID (char colorID) {
+	if (
+		colorID == RED90 ||
+		colorID == GREEN90 ||
+		colorID == YELLOW90 ||
+		colorID == BLUE90 ||
+		colorID == PINK90 ||
+		colorID == CYAN90 ||
+		colorID == WHITE90 ||
+		colorID == GRAY90
+	) return L90;	
+	if (
+		colorID == RED80 ||
+		colorID == GREEN80 ||
+		colorID == YELLOW80 ||
+		colorID == BLUE80 ||
+		colorID == PINK80 ||
+		colorID == CYAN80 ||
+		colorID == WHITE80 ||
+		colorID == GRAY80
+	) return L80;	
+	if (
+		colorID == RED70 ||
+		colorID == GREEN70 ||
+		colorID == YELLOW70 ||
+		colorID == BLUE70 ||
+		colorID == PINK70 ||
+		colorID == CYAN70 ||
+		colorID == WHITE70 ||
+		colorID == GRAY70
+	) return L70;	
+	if (
+		colorID == RED60 ||
+		colorID == GREEN60 ||
+		colorID == YELLOW60 ||
+		colorID == BLUE60 ||
+		colorID == PINK60 ||
+		colorID == CYAN60 ||
+		colorID == WHITE60 ||
+		colorID == GRAY60
+	) return L60;
+}
+
 int point_visible(canvas* can, int X, int Y) {
 	if (
 		X >= can->minX &&
@@ -192,6 +243,92 @@ typedef struct _palette {
 	char* gray60;
 } palette;
 */
+
+void color_dict_generate (canvas* can) {
+	colormap **colordict = malloc (sizeof(colormap*) * COLORNUM);
+	colormap *red90map = malloc (sizeof(red90map));
+	red90map->colorID = RED90;
+	red90map->color = can->pal->red90;
+	//colormap red90map = {.colorID = RED90, .color = can->pal->red90};
+	colordict[0] = red90map;
+	can -> colordict = colordict;
+}
+
+char get_colorID(canvas* can, char* color) {
+	char colorTemp[16];
+	strcpy (colorTemp, color);
+
+	int i = 0;
+	for (i; color[i] != 'm'; i ++);
+	colorTemp[i + 1] = '\0';
+
+	if (!strcmp(colorTemp, can->pal->red90))
+		return RED90;
+	if (!strcmp(colorTemp, can->pal->red80))
+		return RED80;
+	if (!strcmp(colorTemp, can->pal->red70))
+		return RED70;
+	if (!strcmp(colorTemp, can->pal->red60))
+		return RED60;
+	if (!strcmp(colorTemp, can->pal->green90))
+		return GREEN90;
+	if (!strcmp(colorTemp, can->pal->green80))
+		return GREEN80;
+	if (!strcmp(colorTemp, can->pal->green70))
+		return GREEN70;
+	if (!strcmp(colorTemp, can->pal->green60))
+		return GREEN60;
+	if (!strcmp(colorTemp, can->pal->yellow90))
+		return YELLOW90;
+	if (!strcmp(colorTemp, can->pal->yellow80))
+		return YELLOW80;
+	if (!strcmp(colorTemp, can->pal->yellow70))
+		return YELLOW70;
+	if (!strcmp(colorTemp, can->pal->yellow60))
+		return YELLOW60;
+	if (!strcmp(colorTemp, can->pal->blue90))
+		return BLUE90;
+	if (!strcmp(colorTemp, can->pal->blue80))
+		return BLUE80;
+	if (!strcmp(colorTemp, can->pal->blue70))
+		return BLUE70;
+	if (!strcmp(colorTemp, can->pal->blue60))
+		return BLUE60;
+	if (!strcmp(colorTemp, can->pal->pink90))
+		return PINK90;
+	if (!strcmp(colorTemp, can->pal->pink80))
+		return PINK80;
+	if (!strcmp(colorTemp, can->pal->pink70))
+		return PINK70;
+	if (!strcmp(colorTemp, can->pal->pink60))
+		return PINK60;
+	if (!strcmp(colorTemp, can->pal->cyan90))
+		return CYAN90;
+	if (!strcmp(colorTemp, can->pal->cyan80))
+		return CYAN80;
+	if (!strcmp(colorTemp, can->pal->cyan70))
+		return CYAN70;
+	if (!strcmp(colorTemp, can->pal->cyan60))
+		return CYAN60;
+	if (!strcmp(colorTemp, can->pal->white90))
+		return WHITE90;
+	if (!strcmp(colorTemp, can->pal->white80))
+		return WHITE80;
+	if (!strcmp(colorTemp, can->pal->white70))
+		return WHITE70;
+	if (!strcmp(colorTemp, can->pal->white60))
+		return WHITE60;
+	if (!strcmp(colorTemp, can->pal->gray90))
+		return GRAY90;
+	if (!strcmp(colorTemp, can->pal->gray80))
+		return GRAY80;
+	if (!strcmp(colorTemp, can->pal->gray70))
+		return GRAY70;
+	if (!strcmp(colorTemp, can->pal->gray60))
+		return GRAY60;
+	else
+		return CYAN90;
+}
 
 char* parse_colorID(canvas* can, char colorID) {
 	switch (colorID) {
@@ -356,8 +493,13 @@ canvas *canvas_new(int sizeX, int sizeY, double unit, int clear, char PALETTE) {
 			break;
 	}
 
-	// handle the rest:
+	// reserve memory for object:
 	canvas *can = malloc(sizeof (canvas));
+
+	// handle colormap dict:
+	//color_dict_generate (can);
+
+	// handle the rest:
 	can -> buf = buf;
 	can -> sizeX = sizeX;
 	can -> sizeY = sizeY;
@@ -372,6 +514,7 @@ canvas *canvas_new(int sizeX, int sizeY, double unit, int clear, char PALETTE) {
 	can -> buf_stack = NULL;
 	can -> buf_pointer = 0;
 	can -> pal = pal;
+	color_dict_generate (can);
 	return can;
 }
 
@@ -503,6 +646,45 @@ void display(canvas* can) {
 			printf("%s", can -> buf[Y][X]);
 		printf("\033[0;0m\n");
 	}
+}
+
+/*
+char point_get_color(canvas *can, int X, int Y) {
+
+	char* color = parse_colorID(can, colorID);
+
+	if (colorID == RAND)
+		color = rand_c ();
+	if (
+		X <= can -> minX ||
+		X >= can -> maxX ||
+		Y <= can -> minY ||
+		Y >= can -> maxY
+	) return 1;
+
+	if (point_visible(can, X, Y)) {
+		//free(can -> buf[Y+can->originY][X+can->originX]);
+		//can -> buf[Y+can->originY][X+can->originX] = malloc(PIXSIZE);
+		sprintf(can -> buf[Y+can->originY][X+can->originX], "%s█%s", color, c0);
+		//strcpy(can -> buf[Y + can -> originY][X + can -> originX], color);
+		//strcat(can -> buf[Y + can -> originY][X + can -> originX], "█");
+		//strcat(can -> buf[Y + can -> originY][X + can -> originX], c0);
+	}
+
+	return 0;
+}
+*/
+
+//WORKS
+char* get_point_color (canvas *can, int X, int Y) {
+
+	if (
+		X <= can -> minX ||
+		X >= can -> maxX ||
+		Y <= can -> minY ||
+		Y >= can -> maxY
+	) return NULL;
+	return can -> buf[Y+can->originY][X+can->originX];
 }
 
 int plot_point(canvas *can, int X, int Y, const char colorID) {
@@ -749,30 +931,34 @@ void plot_axes(canvas *can, int originX, int originY) {
 -1.5 to -2.5 = -2
 -2.5 to -3.5 = -3
 */
-point point_from_vec (vec vector) {
-	point p = malloc(sizeof(int) * 2);
-
+point point_from_vec (canvas* can, vec vector) {
+	
 	if (vector.size < 2) {
 		printf ("error: point_from_vec received a vector of dimension lower than 2.\n");
 		return 0;
 	}
 
+	vec temp = vec_from_const (0, 2);
+	temp.val[0] = vector.val[0] * 8 / can -> unit;
+	temp.val[1] = vector.val[1] * 4 / can -> unit;
+	point p = malloc(sizeof(int) * 2);
+
 	if (vector.val[0] >= 0) {
 		double frac = vector.val[0] - (int)vector.val[0];
-		vector.val[0] = (int)vector.val[0];
+		temp.val[0] = (int)vector.val[0];
 		if (frac >= 0.5)
-			vector.val[0] += 1;
+			temp.val[0] += 1;
 	}
 
 	if (vector.val[1] < 0) {
 		double frac = vector.val[1] - (int)vector.val[1];
-		vector.val[1] = (int)vector.val[1];
+		temp.val[1] = (int)vector.val[1];
 		if (frac < -0.5)
-			vector.val[1] -= 1;
+			temp.val[1] -= 1;
 	}
 
-	p[0] = vector.val[0];
-	p[1] = vector.val[1];
+	p[0] = temp.val[0];
+	p[1] = temp.val[1];
 
 	return p;
 }
@@ -788,9 +974,7 @@ vec vec_from_point (canvas* can, point p) {
 }
 
 void plot_vec (canvas* can, vec vector, const char colorID) {
-	vector.val[0] *= 8 / can -> unit;
-	vector.val[1] *= 4 / can -> unit;
-	point p = point_from_vec (vector);
+	point p = point_from_vec (can, vector);
 	plot_point(can, p[0], p[1], colorID);
 	free (p);
 }
@@ -808,17 +992,217 @@ void plot_line (canvas *can, vec A, vec B, const char colorID) {
 	plot_vec (can, A, colorID);
 }
 */
+
+double point_vec_dist (canvas* can, vec vector) {
+	// issue: this function shouldn't modify vector.val, it should createa new vector:
+	vec real = vec_from_const (0, 2);
+	real.val[0] = vector.val[0] * 8 / can -> unit;
+	real.val[1] = vector.val[1] * 4 / can -> unit;
+	/*
+	vector.val[0] *= 8 / can -> unit;
+	vector.val[1] *= 4 / can -> unit;
+	*/
+
+	point p = point_from_vec (can, vector);
+	double arr[2] = {(double)p[0], (double)p[1]};
+	vec integer = vec_from_arr (arr, 2);
+	/*
+	point p = malloc(sizeof(int) * 2);
+	if (vector.size < 2) {
+		printf ("error: point_vec_dist received a vector of dimension lower than 2.\n");
+		return 0;
+	}
+
+	if (vector.val[0] >= 0) {
+		double frac = vector.val[0] - (int)vector.val[0];
+		rounded.val[0] = (int)vector.val[0];
+		if (frac >= 0.5)
+			rounded.val[0] += 1;
+	}
+
+	if (vector.val[1] < 0) {
+		double frac = vector.val[1] - (int)vector.val[1];
+		rounded.val[1] = (int)vector.val[1];
+		if (frac < -0.5)
+			rounded.val[1] -= 1;
+	}
+	double dist = sqrt (pow (rounded.val[1] - vector.val[1], 2) + pow (rounded.val[0] - vector.val[0], 2));
+	*/
+	double dist = sqrt (pow (integer.val[1] - real.val[1], 2) + pow (integer.val[0] - real.val[0], 2));
+
+	return dist;
+}
+
 void plot_line (canvas *can, vec A, vec B, const char colorID) {
+
 	double len = sqrt(pow(B.val[0] - A.val[0], 2) + pow(B.val[1] - A.val[1], 2));
 	for (double i = 0; i < 1; i += 1.0/(len / (can->unit)*8)) {
 		vec BsubA = vec_sub(B, A);
 		vec AaddBsubA = vec_add (A, vec_mul_const(BsubA, i));
-		//vec C = vec_add (A, vec_mul_const(vec_sub(B, A), i));
-		plot_vec (can, AaddBsubA, colorID);
+		if (
+			colorID == RED ||
+			colorID == GREEN ||
+			colorID == YELLOW ||
+			colorID == BLUE ||
+			colorID == PINK ||
+			colorID == CYAN ||
+			colorID == WHITE
+		) {
+			char shade;
+			double dist = point_vec_dist (can, AaddBsubA);
+			point p = point_from_vec (can, AaddBsubA);
+			if (dist >= 0.000 && dist < 0.175) shade = L90;
+			if (dist >= 0.175 && dist < 0.350) shade = L80;
+			if (dist >= 0.350 && dist < 0.525) shade = L70;
+			if (dist >= 0.525 && dist < 0.700) shade = L60;
+			char presentShade = shade_from_colorID (colorID);
+			switch (colorID) {
+				case RED:
+					switch (shade) {
+						case L90:
+							plot_vec (can, AaddBsubA, RED90);
+							break;
+						case L80:
+							if (presentShade != L90)
+								plot_vec (can, AaddBsubA, RED80);
+							break;
+						case L70:
+							if (presentShade != L90 && presentShade != L80)
+								plot_vec (can, AaddBsubA, RED70);
+							break;
+						case L60:
+							if (presentShade != L90 && presentShade != L80 && presentShade != L70)
+								plot_vec (can, AaddBsubA, RED60);
+							break;
+					}
+					break;
+				case GREEN:
+					switch (shade) {
+						case L90:
+							plot_vec (can, AaddBsubA, GREEN90);
+							break;
+						case L80:
+							if (presentShade != L90)
+								plot_vec (can, AaddBsubA, GREEN80);
+							break;
+						case L70:
+							if (presentShade != L90 && presentShade != L80)
+								plot_vec (can, AaddBsubA, GREEN70);
+							break;
+						case L60:
+							if (presentShade != L90 && presentShade != L80 && presentShade != L70)
+								plot_vec (can, AaddBsubA, GREEN60);
+							break;
+					}
+					break;
+				case YELLOW:
+					switch (shade) {
+						case L90:
+							plot_vec (can, AaddBsubA, YELLOW90);
+							break;
+						case L80:
+							if (presentShade != L90)
+								plot_vec (can, AaddBsubA, YELLOW80);
+							break;
+						case L70:
+							if (presentShade != L90 && presentShade != L80)
+								plot_vec (can, AaddBsubA, YELLOW70);
+							break;
+						case L60:
+							if (presentShade != L90 && presentShade != L80 && presentShade != L70)
+								plot_vec (can, AaddBsubA, YELLOW60);
+							break;
+					}
+					break;
+				case BLUE:
+					switch (shade) {
+						case L90:
+							plot_vec (can, AaddBsubA, BLUE90);
+							break;
+						case L80:
+							if (presentShade != L90)
+								plot_vec (can, AaddBsubA, BLUE80);
+							break;
+						case L70:
+							if (presentShade != L90 && presentShade != L80)
+								plot_vec (can, AaddBsubA, BLUE70);
+							break;
+						case L60:
+							if (presentShade != L90 && presentShade != L80 && presentShade != L70)
+								plot_vec (can, AaddBsubA, BLUE60);
+							break;
+					}
+					break;
+				case PINK:
+					switch (shade) {
+						case L90:
+							plot_vec (can, AaddBsubA, PINK90);
+							break;
+						case L80:
+							if (presentShade != L90)
+								plot_vec (can, AaddBsubA, PINK80);
+							break;
+						case L70:
+							if (presentShade != L90 && presentShade != L80)
+								plot_vec (can, AaddBsubA, PINK70);
+							break;
+						case L60:
+							if (presentShade != L90 && presentShade != L80 && presentShade != L70)
+								plot_vec (can, AaddBsubA, PINK60);
+							break;
+					}
+					break;
+				case CYAN:
+					switch (shade) {
+						case L90:
+							plot_vec (can, AaddBsubA, CYAN90);
+							break;
+						case L80:
+							if (presentShade != L90)
+								plot_vec (can, AaddBsubA, CYAN80);
+							break;
+						case L70:
+							if (presentShade != L90 && presentShade != L80)
+								plot_vec (can, AaddBsubA, CYAN70);
+							break;
+						case L60:
+							if (presentShade != L90 && presentShade != L80 && presentShade != L70)
+								plot_vec (can, AaddBsubA, CYAN60);
+							break;
+					}
+					break;
+				case WHITE:
+					switch (shade) {
+						case L90:
+							plot_vec (can, AaddBsubA, WHITE90);
+							break;
+						case L80:
+							if (presentShade != L90)
+								plot_vec (can, AaddBsubA, WHITE80);
+							break;
+						case L70:
+							if (presentShade != L90 && presentShade != L80)
+								plot_vec (can, AaddBsubA, WHITE70);
+							break;
+						case L60:
+							if (presentShade != L90 && presentShade != L80 && presentShade != L70)
+								plot_vec (can, AaddBsubA, WHITE60);
+							break;
+					}
+					break;
+			}
+			/*
+			0 - 17.5
+			17.5 - 35
+			35 - 52.5
+			52.5- 70
+			*/
+		}
+		else {
+			plot_vec (can, AaddBsubA, colorID);
+		}
 		free(AaddBsubA.val);
 		free(BsubA.val);
-		//system("clear");
-		//display (can);
 	}
 	plot_vec (can, A, colorID);
 }
@@ -914,7 +1298,12 @@ void wait(double secs) {
 	usleep(1000000 * secs);
 }
 
-//double point_vec_dist (canvas
+/*
+double dist_point_line (canvas* can, vec A, vec B) {
+	double tangent = (B.val[1] - A.val[1]) / (B.val[0] - A.val[0]);
+	double normal = - 1 / slope;
+}
+*/
 
 int main () {
 	/*
@@ -980,8 +1369,9 @@ todo:
 
 	// 3 threads - one handles the input, another does the plotting, and a third updates the canvas.
 
-	while(running && time < 10) {
+	while(running && time < 100) {
 		canvas* can = canvas_new(screen->sizeX, screen->sizeY - 2, 4.0, CLEAR, XTERM);
+		//printf(" [[[%c, %s]]] ", can->colordict[0]->colorID, can->colordict[0]->color);
 	
 		can->unit = 1.0;
 		plot_axes(can, can->sizeX/2, can->sizeY/2);
@@ -991,7 +1381,8 @@ todo:
 
 		double B[2] = {0,4}, C[2] = {8 * cos(time / 2), 4 * cos(time)};
 		vec vecB = vec_from_arr (B, 2), vecC = vec_from_arr (C, 2);
-		plot_line (can, vecB, vecC, CYAN90);
+		//plot_line (can, vecB, vecC, CYAN90);
+		plot_line (can, vecB, vecC, BLUE);
 		plot_vec(can, vecC, RED90);
 
 		//double D[2] = {2,2.25}, E[2] = {-3, 3.25};
@@ -1008,14 +1399,15 @@ todo:
 		// in arrays inside struct _canvas so they can then be easily freed inside canvas_delete(), instead of manually.
 
 		plot_palette (can, 2, -19);
+		plot_point(can, 16, 8, GREEN90);
 		
-		int P[2] = {-8, -4};
-		vec uman = vec_from_point (can, P);
-		plot_vec(can, uman, GREEN90);
+		char col168 = get_colorID(can, get_point_color (can, 16, 8));
+		plot_point(can, 17, 8, col168);
+		//get_point_color (can, 16, 8);
 
 		display (can);
 		fflush(stdout);
-		wait(0.01);
+		wait(0.05);
 		time += 0.1;
 
 		canvas_delete (can);
@@ -1046,7 +1438,6 @@ todo:
 	*/
 	//system("/bin/stty cooked");
 	//
-	printf("WE'RE AT THE END, BABY!");
 	return 0;
 }
 
