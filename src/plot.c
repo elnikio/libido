@@ -256,21 +256,21 @@ canvas *canvas_new(int sizeX, int sizeY, double unit, int clear, char PALETTE) {
 
 		pixel* row = malloc(sizeof(pixel) * sizeX);
 		for (int X = 0; X < sizeX; X ++) {
-			//row[X] = malloc(PIXSIZE);
-			row[X] = "\033[0;96m \033[0;0m";
+			row[X] = malloc(PIXSIZE);
+			strcpy(row[X], "\033[0;96m \033[0;0m");
 
 			if (X==0&&Y==0)
-				row[X] = "\033[0;31m╚\033[0;0m";
+				strcpy(row[X], "\033[0;31m╚\033[0;0m");
 			else if (X==sizeX-1&&Y==sizeY-1)
-				row[X] = "\033[0;31m╗\033[0;0m";
+				strcpy(row[X], "\033[0;31m╗\033[0;0m");
 			else if (X==0&&Y==sizeY-1)
-				row[X] = "\033[0;31m╔\033[0;0m";
+				strcpy(row[X], "\033[0;31m╔\033[0;0m");
 			else if (X==sizeX-1&&Y==0)
-				row[X] = "\033[0;31m╝\033[0;0m";
+				strcpy(row[X], "\033[0;31m╝\033[0;0m");
 			else if (X==0||X==sizeX-1)
-				row[X] = "\033[0;31m║\033[0;0m";
+				strcpy(row[X], "\033[0;31m║\033[0;0m");
 			else if (Y==0||Y==sizeY-1)
-				row[X] = "\033[0;31m═\033[0;0m";
+				strcpy(row[X], "\033[0;31m═\033[0;0m");
 
 		}
 
@@ -378,11 +378,9 @@ canvas *canvas_new(int sizeX, int sizeY, double unit, int clear, char PALETTE) {
 void canvas_delete (canvas* can) {
 
 	for (int Y = 0; Y < can -> sizeY; Y ++) {
-		/*
 		for (int X = 0; X < can -> sizeX; X ++) {
 			free (can -> buf[Y][X]);
 		}
-		*/
 		free (can -> buf[Y]);
 	}
 	free (can -> buf);
@@ -521,8 +519,12 @@ int plot_point(canvas *can, int X, int Y, const char colorID) {
 	) return 1;
 
 	if (point_visible(can, X, Y)) {
-		can -> buf[Y+can->originY][X+can->originX] = malloc(PIXSIZE);
+		//free(can -> buf[Y+can->originY][X+can->originX]);
+		//can -> buf[Y+can->originY][X+can->originX] = malloc(PIXSIZE);
 		sprintf(can -> buf[Y+can->originY][X+can->originX], "%s█%s", color, c0);
+		//strcpy(can -> buf[Y + can -> originY][X + can -> originX], color);
+		//strcat(can -> buf[Y + can -> originY][X + can -> originX], "█");
+		//strcat(can -> buf[Y + can -> originY][X + can -> originX], c0);
 	}
 
 	return 0;
@@ -657,7 +659,7 @@ int plot_char(canvas *can, int X, int Y, const char* color, char text) {
 	) return 1;
 
 	if (point_visible(can, X, Y)) {
-		can -> buf[Y+can->originY][X+can->originX] = malloc(PIXSIZE);
+		//can -> buf[Y+can->originY][X+can->originX] = malloc(PIXSIZE);
 		sprintf(can -> buf[Y+can->originY][X+can->originX], "%s%c%s", color, text, c0);
 	}
 
@@ -679,7 +681,7 @@ int plot_uni(canvas *can, int X, int Y, const char* color, char* text) {
 	) return 1;
 
 	if (point_visible(can, X, Y)) {
-		can -> buf[Y+can->originY][X+can->originX] = malloc(PIXSIZE);
+		//can -> buf[Y+can->originY][X+can->originX] = malloc(PIXSIZE);
 		sprintf(can -> buf[Y+can->originY][X+can->originX], "%s%s%s", color, text, c0);
 	}
 
@@ -782,12 +784,29 @@ void plot_vec (canvas *can, vec vector, const char colorID) {
 	plot_point(can, p[0], p[1], colorID);
 	free (p);
 }
-
+/*
 void plot_line (canvas *can, vec A, vec B, const char colorID) {
 	double len = sqrt(pow(B.val[0] - A.val[0], 2) + pow(B.val[1] - A.val[1], 2));
 	for (double i = 0; i < 1; i += 1.0/(len / (can->unit)*8)) {
+		vec BsubA = vec_sub(B, A);
 		//vec C = vec_add (A, vec_mul_const(vec_sub(B, A), i));
-		plot_vec (can, vec_add (A, vec_mul_const(vec_sub(B, A), i)), colorID);
+		plot_vec (can, vec_add (A, vec_mul_const(BsubA, i)), colorID);
+		free(BsubA.val);
+		//system("clear");
+		//display (can);
+	}
+	plot_vec (can, A, colorID);
+}
+*/
+void plot_line (canvas *can, vec A, vec B, const char colorID) {
+	double len = sqrt(pow(B.val[0] - A.val[0], 2) + pow(B.val[1] - A.val[1], 2));
+	for (double i = 0; i < 1; i += 1.0/(len / (can->unit)*8)) {
+		vec BsubA = vec_sub(B, A);
+		vec AaddBsubA = vec_add (A, vec_mul_const(BsubA, i));
+		//vec C = vec_add (A, vec_mul_const(vec_sub(B, A), i));
+		plot_vec (can, AaddBsubA, colorID);
+		free(AaddBsubA.val);
+		free(BsubA.val);
 		//system("clear");
 		//display (can);
 	}
@@ -979,7 +998,7 @@ todo:
 		canvas_delete (can);
 	}
 
-	free(screen);
+	canvas_delete (screen);
 
 	//void* return_from_thread;
 
