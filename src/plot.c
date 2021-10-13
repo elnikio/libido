@@ -687,9 +687,44 @@ char* get_point_color (canvas *can, int X, int Y) {
 	return can -> buf[Y+can->originY][X+can->originX];
 }
 
-int plot_point(canvas *can, int X, int Y, const char colorID) {
+// delete this func: it's a dupe
+/*
+point point_from_vec (canvas* can, vec vector) {
+	
+	if (vector.size < 2) {
+		printf ("error: point_from_vec received a vector of dimension lower than 2.\n");
+		return 0;
+	}
 
-	char* color = parse_colorID(can, colorID);
+	vec temp = vec_from_const (0, 2);
+	temp.val[0] = vector.val[0] * 8 / can -> unit;
+	temp.val[1] = vector.val[1] * 4 / can -> unit;
+	point p = malloc(sizeof(int) * 2);
+
+	if (vector.val[0] >= 0) {
+		double frac = vector.val[0] - (int)vector.val[0];
+		temp.val[0] = (int)vector.val[0];
+		if (frac >= 0.5)
+			temp.val[0] += 1;
+	}
+
+	if (vector.val[1] < 0) {
+		double frac = vector.val[1] - (int)vector.val[1];
+		temp.val[1] = (int)vector.val[1];
+		if (frac < -0.5)
+			temp.val[1] -= 1;
+	}
+
+	p[0] = temp.val[0];
+	p[1] = temp.val[1];
+
+	return p;
+}
+*/
+
+int plot_point (canvas *can, int X, int Y, const char colorID) {
+
+	char* color = parse_colorID (can, colorID);
 
 	if (colorID == RAND)
 		color = rand_c ();
@@ -701,36 +736,11 @@ int plot_point(canvas *can, int X, int Y, const char colorID) {
 	) return 1;
 
 	if (point_visible(can, X, Y)) {
-		//free(can -> buf[Y+can->originY][X+can->originX]);
-		//can -> buf[Y+can->originY][X+can->originX] = malloc(PIXSIZE);
-		sprintf(can -> buf[Y+can->originY][X+can->originX], "%s█%s", color, c0);
-		//strcpy(can -> buf[Y + can -> originY][X + can -> originX], color);
-		//strcat(can -> buf[Y + can -> originY][X + can -> originX], "█");
-		//strcat(can -> buf[Y + can -> originY][X + can -> originX], c0);
-	}
-
-	return 0;
-}
-
-/*
-int plot_point(canvas *can, int X, int Y, const char* color) {
-	if (color[0] == 'R')
-		color = rand_c ();
-	if (
-		X <= can -> minX ||
-		X >= can -> maxX ||
-		Y <= can -> minY ||
-		Y >= can -> maxY
-	) return 1;
-
-	if (point_visible(can, X, Y)) {
-		can -> buf[Y+can->originY][X+can->originX] = malloc(PIXSIZE);
 		sprintf(can -> buf[Y+can->originY][X+can->originX], "%s█%s", color, c0);
 	}
 
 	return 0;
 }
-*/
 
 int plot_image(canvas* can, int X, int Y, char* img_path) {
 
@@ -932,9 +942,10 @@ void plot_axes(canvas *can, int originX, int originY) {
 -2.5 to -3.5 = -3
 */
 point point_from_vec (canvas* can, vec vector) {
+	//printf("point_from_vec ({%lf, %lf}):\n", vector.val[0], vector.val[1]);
 	
 	if (vector.size < 2) {
-		printf ("error: point_from_vec received a vector of dimension lower than 2.\n");
+		//printf ("error: point_from_vec received a vector of dimension lower than 2.\n");
 		return 0;
 	}
 
@@ -943,16 +954,17 @@ point point_from_vec (canvas* can, vec vector) {
 	temp.val[1] = vector.val[1] * 4 / can -> unit;
 	point p = malloc(sizeof(int) * 2);
 
+	// dotuk dobre
 	if (vector.val[0] >= 0) {
 		double frac = vector.val[0] - (int)vector.val[0];
-		temp.val[0] = (int)vector.val[0];
+		temp.val[0] = (int)temp.val[0];
 		if (frac >= 0.5)
 			temp.val[0] += 1;
 	}
 
 	if (vector.val[1] < 0) {
 		double frac = vector.val[1] - (int)vector.val[1];
-		temp.val[1] = (int)vector.val[1];
+		temp.val[1] = (int)temp.val[1];
 		if (frac < -0.5)
 			temp.val[1] -= 1;
 	}
@@ -1336,7 +1348,7 @@ int main () {
 	4.	color pixel.
 	*/
 	//system("/bin/stty raw");
-	canvas* screen = canvas_new(FILL, FILL, 1.0, DONT_CLEAR, XTERM);
+	canvas* screen = canvas_new(FILL, FILL, 1.0, CLEAR, XTERM);
 
 	
 	/*
@@ -1370,7 +1382,7 @@ todo:
 	// 3 threads - one handles the input, another does the plotting, and a third updates the canvas.
 
 	while(running && time < 100) {
-		canvas* can = canvas_new(screen->sizeX, screen->sizeY - 2, 4.0, CLEAR, XTERM);
+		canvas* can = canvas_new(screen->sizeX, screen->sizeY - 2, 4.0, DONT_CLEAR, XTERM);
 		//printf(" [[[%c, %s]]] ", can->colordict[0]->colorID, can->colordict[0]->color);
 	
 		can->unit = 1.0;
@@ -1379,16 +1391,28 @@ todo:
 		//double A[2] = {0 + 4 * sin(time), 0 + cos(time)};
 		//vec vecA = vec_from_arr (A, 2);
 
-		double B[2] = {0,4}, C[2] = {8 * cos(time / 2), 4 * cos(time)};
-		vec vecB = vec_from_arr (B, 2), vecC = vec_from_arr (C, 2);
-		//plot_line (can, vecB, vecC, CYAN90);
-		plot_line (can, vecB, vecC, BLUE);
-		plot_vec(can, vecC, RED90);
 
-		//double D[2] = {2,2.25}, E[2] = {-3, 3.25};
-		//vec vecD = vec_from_arr (D, 2);
-		//vec vecE = vec_from_arr (E, 2);
-		//plot_line (can, vecD, vecE, c91);
+
+		double D[2] = {-5,-5}, E[2] = {5, 5};
+		vec vecD = vec_from_arr (D, 2);
+		vec vecE = vec_from_arr (E, 2);
+		plot_line (can, vecD, vecE, YELLOW);
+		vecD.val[0] += 1;
+		vecE.val[0] += 1;
+		plot_line (can, vecD, vecE, GREEN);
+		vecD.val[0] += 1;
+		vecE.val[0] += 1;
+		plot_line (can, vecD, vecE, PINK);
+		vecD.val[0] += 1;
+		vecE.val[0] += 1;
+		plot_line (can, vecD, vecE, CYAN);
+		vecD.val[0] += 1;
+		vecE.val[0] += 1;
+		plot_line (can, vecD, vecE, WHITE);
+		vecD.val[0] += 1;
+		vecE.val[0] += 1;
+		plot_line (can, vecD, vecE, RED);
+		//plot_point (can, -7, -7, BLUE90);
 		//
 		//double A[2] = {-2, 2};
 		//vec vecA = vec_from_arr (A, 2);
@@ -1397,7 +1421,11 @@ todo:
 		//plot_point(can, pA[0], pA[1], RED60);
 		// make point and vec constructors, which take canvas* can as parameter and store the points and canvases
 		// in arrays inside struct _canvas so they can then be easily freed inside canvas_delete(), instead of manually.
-
+		double B[2] = {0,4}, C[2] = {8 * cos(time / 2), 4 * cos(time)};
+		vec vecB = vec_from_arr (B, 2), vecC = vec_from_arr (C, 2);
+		//plot_line (can, vecB, vecC, CYAN90);
+		plot_line (can, vecB, vecC, BLUE);
+		plot_vec(can, vecC, RED90);
 		plot_palette (can, 2, -19);
 		plot_point(can, 16, 8, GREEN90);
 		
@@ -1408,7 +1436,7 @@ todo:
 		display (can);
 		fflush(stdout);
 		wait(0.05);
-		time += 0.1;
+		time += 0.2;
 
 		canvas_delete (can);
 		//free(pA);
