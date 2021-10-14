@@ -1,5 +1,8 @@
 #include "colors.h"
 
+extern int scr_sizeX;
+extern int scr_sizeY;
+
 /*
 enum _palette {
 	RAND,

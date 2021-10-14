@@ -1,7 +1,6 @@
 // camera = (width, height, distance)
 #include "plot.h"
 #include "plot_templates.h"
-//#include "lite/conio.h"
 #include "string.h"
 #include "vector.h"
 #include <pthread.h>
@@ -10,51 +9,21 @@
 #include <unistd.h>
 #include <math.h>
 
-/*
-enum _palette {
-	RAND,
-	RED,
-	RED90,
-	RED80,
-	RED70,
-	RED60,
-	GREEN.
-	GREEN90,
-	GREEN80,
-	GREEN70,
-	GREEN60,
-	YELLOW,
-	YELLOW90,
-	YELLOW80,
-	YELLOW70,
-	YELLOW60,
-	BLUE,
-	BLUE90,
-	BLUE80,
-	BLUE70,
-	BLUE60,
-	PINK,
-	PINK90,
-	PINK80,
-	PINK70,
-	PINK60,
-	CYAN,
-	CYAN90,
-	CYAN80,
-	CYAN70,
-	CYAN60,
-	WHITE,
-	WHITE90,
-	WHITE80,
-	WHITE70,
-	WHITE60,
-	GRAY,
-	GRAY90,
-	GRAY80,
-	GRAY70,
-	GRAY60
-};
-*/
+typedef struct _size {
+	int X;
+	int Y;
+} size;
+
+size screen_size () {	
+	struct winsize ws;
+	ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
+	ws = window_size();
+
+	size scr_sz;
+	scr_sz.X = ws.ws_col;
+	scr_sz.Y = ws.ws_row;
+	return scr_sz;
+}
 
 enum _palettes {
 	XTERM,
@@ -69,78 +38,41 @@ todo:
  - add overlap parameter to all plotting functions:
     - overlap = FRONT to overwrite buffer
 	- overlap = BACK to write below buffer, i.e. do not overwrite
+	- do it with an optional parameter, implemented using #define macros
 */
 
-char* r0 = "2;49;31\0"; // darkest
-char* r24991 = "2;49;91\0";
-char* r44931 = "4;49;31\0";
-char* r44991 = "4;49;91\0"; // brightest
-
 int running = 1;
-static const char* c0 = "\033[0;0m";
-static const char* c1 = "\033[0;1m";
-static const char* c2 = "\033[0;2m";
-static const char* c3 = "\033[0;3m";
-static const char* c4 = "\033[0;4m";
-static const char* c7 = "\033[0;7m";
-static const char* c8 = "\033[0;8m";
-static const char* c9 = "\033[0;9m";
-static const char* c30 = "\033[0;30m";
-static const char* c31 = "\033[0;31m";
-static const char* c32 = "\033[0;32m";
-static const char* c33 = "\033[0;33m";
-static const char* c34 = "\033[0;34m";
-static const char* c35 = "\033[0;35m";
-static const char* c36 = "\033[0;36m";
-static const char* c37 = "\033[0;37m";
-static const char* c40 = "\033[0;40m";
-static const char* c41 = "\033[0;41m";
-static const char* c42 = "\033[0;42m";
-static const char* c43 = "\033[0;43m";
-static const char* c44 = "\033[0;44m";
-static const char* c45 = "\033[0;45m";
-static const char* c46 = "\033[0;46m";
-static const char* c47 = "\033[0;47m";
-static const char* c90 = "\033[0;90m";
-static const char* c91 = "\033[0;91m";
-static const char* c92 = "\033[0;92m";
-static const char* c93 = "\033[0;93m";
-static const char* c94 = "\033[0;94m";
-static const char* c95 = "\033[0;95m";
-static const char* c96 = "\033[0;96m";
-static const char* c97 = "\033[0;97m";
-static const char* c100 = "\033[0;100m";
-static const char* c101 = "\033[0;101m";
-static const char* c102 = "\033[0;102m";
-static const char* c103 = "\033[0;103m";
-static const char* c104 = "\033[0;104m";
-static const char* c105 = "\033[0;105m";
-static const char* c106 = "\033[0;106m";
-static const char* c107 = "\033[0;107m";
-static const char* c109 = "\033[0;109m";
-static const char* cran = "R";
-char* rand_c () {
-	int num = rand() % 6 + 1;
-	char *c = NULL;
+static const char* cCLEAR = "\033[0;0m";
+static const char* cAXES = "\033[0;96m";
+
+char rand_c () {
+	int num = rand() % 8 + 1;
+	char c = 0;
 
 	switch (num) {
 		case 1:
-			c = "\033[0;31m";
+			c = RED;
 			break;
 		case 2:
-			c = "\033[0;32m";
+			c = GREEN;
 			break;
 		case 3:
-			c = "\033[0;33m";
+			c = YELLOW;
 			break;
 		case 4:
-			c = "\033[0;34m";
+			c = BLUE;
 			break;
 		case 5:
-			c = "\033[0;35m";
+			c = PINK;
 			break;
 		case 6:
-			c = "\033[0;36m";
+			c = CYAN;
+			break;
+		case 7:
+			c = WHITE;
+			break;
+		case 8:
+			c = GRAY;
 			break;
 	}
 
@@ -205,53 +137,6 @@ struct winsize window_size() {
 	struct winsize w;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 	return w;
-}
-
-/*
-typedef struct _palette {
-	char* red90;
-	char* red80;
-	char* red70;
-	char* red60;	
-	char* green90;
-	char* green80;
-	char* green70;
-	char* green60;	
-	char* yellow90;
-	char* yellow80;
-	char* yellow70;
-	char* yellow60;	
-	char* blue90;
-	char* blue80;
-	char* blue70;
-	char* blue60;	
-	char* pink90;
-	char* pink80;
-	char* pink70;
-	char* pink60;	
-	char* cyan90;
-	char* cyan80;
-	char* cyan70;
-	char* cyan60;
-	char* white90;
-	char* white80;
-	char* white70;
-	char* white60;	
-	char* gray90;
-	char* gray80;
-	char* gray70;
-	char* gray60;
-} palette;
-*/
-
-void color_dict_generate (canvas* can) {
-	colormap **colordict = malloc (sizeof(colormap*) * COLORNUM);
-	colormap *red90map = malloc (sizeof(red90map));
-	red90map->colorID = RED90;
-	red90map->color = can->pal->red90;
-	//colormap red90map = {.colorID = RED90, .color = can->pal->red90};
-	colordict[0] = red90map;
-	can -> colordict = colordict;
 }
 
 char get_colorID(canvas* can, char* color) {
@@ -375,18 +260,30 @@ void swap_strings (char* str1, char* str2) {
 	strcpy (str2, temp);
 }
 
+buffer buf_copy(buffer buf, int sizeX, int sizeY) {
+	buffer bufNew = malloc(sizeY * sizeof(pixel*));
+
+	for (int Y = 0; Y < sizeY; Y ++) {
+
+		pixel* row = malloc(sizeof(pixel) * sizeX);
+		for (int X = 0; X < sizeX; X ++) {
+			row[X] = malloc(PIXSIZE);
+			strcpy(row[X], buf[Y][X]);
+		}
+		bufNew[Y] = row;
+	}
+}
+
 canvas *canvas_new(int sizeX, int sizeY, double unit, int clear, char PALETTE) {
 
-	// handle canvas size:
 	struct winsize ws = window_size();
 	if (sizeX == FILL) {
 		sizeX = ws.ws_col;
 	}
 	if (sizeY == FILL) {
-		sizeY = ws.ws_row - 1;
+		sizeY = ws.ws_row;
 	}
 
-	// handle draw buffer:
 	buffer buf = malloc(sizeY * sizeof(pixel*));
 
 	for (int Y = 0; Y < sizeY; Y ++) {
@@ -414,7 +311,6 @@ canvas *canvas_new(int sizeX, int sizeY, double unit, int clear, char PALETTE) {
 		buf[Y] = row;
 	}
 
-	// handle color palette:
 	if (PALETTE < XTERM || PALETTE > SLRZD) {
 		printf ("error: incorrect palette name fed to canvas constructor. returning NULL.\n");
 		return NULL;
@@ -493,13 +389,8 @@ canvas *canvas_new(int sizeX, int sizeY, double unit, int clear, char PALETTE) {
 			break;
 	}
 
-	// reserve memory for object:
 	canvas *can = malloc(sizeof (canvas));
 
-	// handle colormap dict:
-	//color_dict_generate (can);
-
-	// handle the rest:
 	can -> buf = buf;
 	can -> sizeX = sizeX;
 	can -> sizeY = sizeY;
@@ -514,8 +405,18 @@ canvas *canvas_new(int sizeX, int sizeY, double unit, int clear, char PALETTE) {
 	can -> buf_stack = NULL;
 	can -> buf_pointer = 0;
 	can -> pal = pal;
-	color_dict_generate (can);
 	return can;
+}
+
+void buffer_delete (buffer buf, int sizeX, int sizeY) {
+
+	for (int Y = 0; Y < sizeY; Y ++) {
+		for (int X = 0; X < sizeX; X ++) {
+			free (buf[Y][X]);
+		}
+		free (buf[Y]);
+	}
+	free (buf);
 }
 
 void canvas_delete (canvas* can) {
@@ -530,7 +431,8 @@ void canvas_delete (canvas* can) {
 	free (can -> pal);
 	free (can);
 
-	// free buf_stack loop
+	for (int i = 0; i < can -> buf_pointer; i ++)
+		buffer_delete (can->buf_stack[-- (can->buf_pointer)], can->sizeX, can->sizeY);
 }
 
 canvas *canvas_empty(int sizeX, int sizeY, int clear) {
@@ -648,34 +550,6 @@ void display(canvas* can) {
 	}
 }
 
-/*
-char point_get_color(canvas *can, int X, int Y) {
-
-	char* color = parse_colorID(can, colorID);
-
-	if (colorID == RAND)
-		color = rand_c ();
-	if (
-		X <= can -> minX ||
-		X >= can -> maxX ||
-		Y <= can -> minY ||
-		Y >= can -> maxY
-	) return 1;
-
-	if (point_visible(can, X, Y)) {
-		//free(can -> buf[Y+can->originY][X+can->originX]);
-		//can -> buf[Y+can->originY][X+can->originX] = malloc(PIXSIZE);
-		sprintf(can -> buf[Y+can->originY][X+can->originX], "%s█%s", color, c0);
-		//strcpy(can -> buf[Y + can -> originY][X + can -> originX], color);
-		//strcat(can -> buf[Y + can -> originY][X + can -> originX], "█");
-		//strcat(can -> buf[Y + can -> originY][X + can -> originX], c0);
-	}
-
-	return 0;
-}
-*/
-
-//WORKS
 char* get_point_color (canvas *can, int X, int Y) {
 
 	if (
@@ -687,47 +561,13 @@ char* get_point_color (canvas *can, int X, int Y) {
 	return can -> buf[Y+can->originY][X+can->originX];
 }
 
-// delete this func: it's a dupe
-/*
-point point_from_vec (canvas* can, vec vector) {
-	
-	if (vector.size < 2) {
-		printf ("error: point_from_vec received a vector of dimension lower than 2.\n");
-		return 0;
+int plot_point (canvas *can, int X, int Y, char colorID) {
+	if (colorID == RAND) {
+		colorID = rand_c ();
 	}
-
-	vec temp = vec_from_const (0, 2);
-	temp.val[0] = vector.val[0] * 8 / can -> unit;
-	temp.val[1] = vector.val[1] * 4 / can -> unit;
-	point p = malloc(sizeof(int) * 2);
-
-	if (vector.val[0] >= 0) {
-		double frac = vector.val[0] - (int)vector.val[0];
-		temp.val[0] = (int)vector.val[0];
-		if (frac >= 0.5)
-			temp.val[0] += 1;
-	}
-
-	if (vector.val[1] < 0) {
-		double frac = vector.val[1] - (int)vector.val[1];
-		temp.val[1] = (int)vector.val[1];
-		if (frac < -0.5)
-			temp.val[1] -= 1;
-	}
-
-	p[0] = temp.val[0];
-	p[1] = temp.val[1];
-
-	return p;
-}
-*/
-
-int plot_point (canvas *can, int X, int Y, const char colorID) {
 
 	char* color = parse_colorID (can, colorID);
 
-	if (colorID == RAND)
-		color = rand_c ();
 	if (
 		X <= can -> minX ||
 		X >= can -> maxX ||
@@ -736,7 +576,7 @@ int plot_point (canvas *can, int X, int Y, const char colorID) {
 	) return 1;
 
 	if (point_visible(can, X, Y)) {
-		sprintf(can -> buf[Y+can->originY][X+can->originX], "%s█%s", color, c0);
+		sprintf(can -> buf[Y+can->originY][X+can->originX], "%s█%s", color, cCLEAR);
 	}
 
 	return 0;
@@ -757,12 +597,10 @@ int plot_image(canvas* can, int X, int Y, char* img_path) {
 	while((c = fgetc(img)) != EOF) {
 		switch (c) {
 
-			// black
 			case 'o':
 				plot_point(can, posX, posY, GRAY60);
 				break;
 
-			// dark
 			case 'd':
 				plot_point(can, posX, posY, GRAY90);
 				break;
@@ -770,7 +608,6 @@ int plot_image(canvas* can, int X, int Y, char* img_path) {
 				plot_point(can, posX, posY, GRAY80);
 				break;
 
-			// red
 			case 'r':
 				plot_point(can, posX, posY, RED90);
 				break;
@@ -778,7 +615,6 @@ int plot_image(canvas* can, int X, int Y, char* img_path) {
 				plot_point(can, posX, posY, RED80);
 				break;
 
-			// green
 			case 'g':
 				plot_point(can, posX, posY, GREEN90);
 				break;
@@ -786,7 +622,6 @@ int plot_image(canvas* can, int X, int Y, char* img_path) {
 				plot_point(can, posX, posY, GREEN80);
 				break;
 
-			// yellow
 			case 'y':
 				plot_point(can, posX, posY, YELLOW90);
 				break;
@@ -794,7 +629,6 @@ int plot_image(canvas* can, int X, int Y, char* img_path) {
 				plot_point(can, posX, posY, YELLOW80);
 				break;
 
-			// blue
 			case 'b':
 				plot_point(can, posX, posY, BLUE90);
 				break;
@@ -802,7 +636,6 @@ int plot_image(canvas* can, int X, int Y, char* img_path) {
 				plot_point(can, posX, posY, BLUE80);
 				break;
 
-			// purple
 			case 'p':
 				plot_point(can, posX, posY, PINK90);
 				break;
@@ -810,7 +643,6 @@ int plot_image(canvas* can, int X, int Y, char* img_path) {
 				plot_point(can, posX, posY, PINK80);
 				break;
 
-			// cyan
 			case 'c':
 				plot_point(can, posX, posY, CYAN90);
 				break;
@@ -818,14 +650,12 @@ int plot_image(canvas* can, int X, int Y, char* img_path) {
 				plot_point(can, posX, posY, CYAN80);
 				break;
 
-			// white
 			case 'w':
 				plot_point(can, posX, posY, WHITE90);
 				break;
 			case 'W':
 				plot_point(can, posX, posY, WHITE80);
 				break;
-
 		}
 
 		if (c == '\n') {
@@ -841,7 +671,6 @@ int plot_image(canvas* can, int X, int Y, char* img_path) {
 	return 0;
 }
 
-
 int plot_char(canvas *can, int X, int Y, const char* color, char text) {
 	if (
 		X <= can -> minX ||
@@ -851,8 +680,7 @@ int plot_char(canvas *can, int X, int Y, const char* color, char text) {
 	) return 1;
 
 	if (point_visible(can, X, Y)) {
-		//can -> buf[Y+can->originY][X+can->originX] = malloc(PIXSIZE);
-		sprintf(can -> buf[Y+can->originY][X+can->originX], "%s%c%s", color, text, c0);
+		sprintf(can -> buf[Y+can->originY][X+can->originX], "%s%c%s", color, text, cCLEAR);
 	}
 
 	return 0;
@@ -873,8 +701,7 @@ int plot_uni(canvas *can, int X, int Y, const char* color, char* text) {
 	) return 1;
 
 	if (point_visible(can, X, Y)) {
-		//can -> buf[Y+can->originY][X+can->originX] = malloc(PIXSIZE);
-		sprintf(can -> buf[Y+can->originY][X+can->originX], "%s%s%s", color, text, c0);
+		sprintf(can -> buf[Y+can->originY][X+can->originX], "%s%s%s", color, text, cCLEAR);
 	}
 
 	return 0;
@@ -891,61 +718,52 @@ void plot_axes(canvas *can, int originX, int originY) {
 	can -> minY = can -> minY - originY;
 
 	for (int X = can->minX; X <= can->maxX; X ++) {
-		plot_uni(can, X, 0, c96, "━");
+		plot_uni(can, X, 0, cAXES, "━");
 		if (X % 8 == 0 && X != 0) {
 			if (originY >= (int)(can -> sizeY / 2)) {
-				plot_uni(can, X, 0, c96, "┯");
+				plot_uni(can, X, 0, cAXES, "┯");
 				char val[8];
 			   	sprintf(val, "%f", X/8 * can->unit);
 				val[6] = '\0';
-				plot_string(can, X, -1, c96, val);
+				plot_string(can, X, -1, cAXES, val);
 
 			}
 			if (originY < (int)(can -> sizeY / 2)) {
-				plot_uni(can, X, 0, c96, "┷");
+				plot_uni(can, X, 0, cAXES, "┷");
 				char val[8];
 			   	sprintf(val, "%f", X/8 * can->unit);
 				val[6] = '\0';
-				plot_string(can, X, 1, c96, val);
+				plot_string(can, X, 1, cAXES, val);
 			}
 		}
 	}
 	for (int Y = can->minY; Y <= can->maxY; Y ++) {
-		plot_uni(can, 0, Y, c96, "┃");
+		plot_uni(can, 0, Y, cAXES, "┃");
 		if (Y % 4 == 0 && Y != 0) {
 			if (originX < (int)(can -> sizeX / 2)) {
-				plot_uni(can, 0, Y, c96, "┠");
+				plot_uni(can, 0, Y, cAXES, "┠");
 				char val[8];
 			   	sprintf(val, "%f", Y/4 * can->unit);
 				val[6] = '\0';
-				plot_string(can, 2, Y, c96, val);
+				plot_string(can, 2, Y, cAXES, val);
 			}
 			if (originX >= (int)(can -> sizeX / 2)) {
-				plot_uni(can, 0, Y, c96, "┨");
+				plot_uni(can, 0, Y, cAXES, "┨");
 				char val[8];
 			   	sprintf(val, "%f", Y/4 * can->unit);
 				val[6] = '\0';
-				plot_string(can, -7, Y, c96, val);
+				plot_string(can, -7, Y, cAXES, val);
 			}
 		}
 	}
-	plot_uni(can, 0, 0, c96, "╋");
+	plot_uni(can, 0, 0, cAXES, "╋");
 
 }
-/*
- 2.5 to  3.5 =  3
- 1.5 to  2.5 =  2
- 0.5 to  1.5 =  1
--0.5 to -0.5 =  0
--0.5 to -1.5 = -1
--1.5 to -2.5 = -2
--2.5 to -3.5 = -3
-*/
+
 point point_from_vec (canvas* can, vec vector) {
-	//printf("point_from_vec ({%lf, %lf}):\n", vector.val[0], vector.val[1]);
 	
 	if (vector.size < 2) {
-		//printf ("error: point_from_vec received a vector of dimension lower than 2.\n");
+		printf ("error: point_from_vec received a vector of dimension lower than 2.\n");
 		return 0;
 	}
 
@@ -954,7 +772,6 @@ point point_from_vec (canvas* can, vec vector) {
 	temp.val[1] = vector.val[1] * 4 / can -> unit;
 	point p = malloc(sizeof(int) * 2);
 
-	// dotuk dobre
 	if (vector.val[0] >= 0) {
 		double frac = vector.val[0] - (int)vector.val[0];
 		temp.val[0] = (int)temp.val[0];
@@ -990,63 +807,25 @@ void plot_vec (canvas* can, vec vector, const char colorID) {
 	plot_point(can, p[0], p[1], colorID);
 	free (p);
 }
-/*
-void plot_line (canvas *can, vec A, vec B, const char colorID) {
-	double len = sqrt(pow(B.val[0] - A.val[0], 2) + pow(B.val[1] - A.val[1], 2));
-	for (double i = 0; i < 1; i += 1.0/(len / (can->unit)*8)) {
-		vec BsubA = vec_sub(B, A);
-		//vec C = vec_add (A, vec_mul_const(vec_sub(B, A), i));
-		plot_vec (can, vec_add (A, vec_mul_const(BsubA, i)), colorID);
-		free(BsubA.val);
-		//system("clear");
-		//display (can);
-	}
-	plot_vec (can, A, colorID);
-}
-*/
 
 double point_vec_dist (canvas* can, vec vector) {
-	// issue: this function shouldn't modify vector.val, it should createa new vector:
 	vec real = vec_from_const (0, 2);
 	real.val[0] = vector.val[0] * 8 / can -> unit;
 	real.val[1] = vector.val[1] * 4 / can -> unit;
-	/*
-	vector.val[0] *= 8 / can -> unit;
-	vector.val[1] *= 4 / can -> unit;
-	*/
 
 	point p = point_from_vec (can, vector);
 	double arr[2] = {(double)p[0], (double)p[1]};
 	vec integer = vec_from_arr (arr, 2);
-	/*
-	point p = malloc(sizeof(int) * 2);
-	if (vector.size < 2) {
-		printf ("error: point_vec_dist received a vector of dimension lower than 2.\n");
-		return 0;
-	}
 
-	if (vector.val[0] >= 0) {
-		double frac = vector.val[0] - (int)vector.val[0];
-		rounded.val[0] = (int)vector.val[0];
-		if (frac >= 0.5)
-			rounded.val[0] += 1;
-	}
-
-	if (vector.val[1] < 0) {
-		double frac = vector.val[1] - (int)vector.val[1];
-		rounded.val[1] = (int)vector.val[1];
-		if (frac < -0.5)
-			rounded.val[1] -= 1;
-	}
-	double dist = sqrt (pow (rounded.val[1] - vector.val[1], 2) + pow (rounded.val[0] - vector.val[0], 2));
-	*/
 	double dist = sqrt (pow (integer.val[1] - real.val[1], 2) + pow (integer.val[0] - real.val[0], 2));
 
 	return dist;
 }
 
-void plot_line (canvas *can, vec A, vec B, const char colorID) {
+void plot_line (canvas *can, vec A, vec B, char colorID) {
 
+	if (colorID == RAND)
+		colorID = rand_c ();
 	double len = sqrt(pow(B.val[0] - A.val[0], 2) + pow(B.val[1] - A.val[1], 2));
 	for (double i = 0; i < 1; i += 1.0/(len / (can->unit)*8)) {
 		vec BsubA = vec_sub(B, A);
@@ -1203,12 +982,6 @@ void plot_line (canvas *can, vec A, vec B, const char colorID) {
 					}
 					break;
 			}
-			/*
-			0 - 17.5
-			17.5 - 35
-			35 - 52.5
-			52.5- 70
-			*/
 		}
 		else {
 			plot_vec (can, AaddBsubA, colorID);
@@ -1282,7 +1055,8 @@ void buf_push (canvas *can) {
 		can->buf_stack = malloc (sizeof(buffer*));
 	else
 		can->buf_stack = realloc (can->buf_stack, sizeof(buffer*) * (can->buf_pointer + 1));
-	can->buf_stack[can->buf_pointer ++] = can->buf;
+	
+	can->buf_stack[can->buf_pointer ++] = buf_copy (can->buf, can->sizeX, can->sizeY);
 }
 
 int buf_pop (canvas *can) {
@@ -1291,7 +1065,7 @@ int buf_pop (canvas *can) {
 		return 1;
 	}
 	else {
-		can->buf = can->buf_stack[--(can -> buf_pointer)];
+		can->buf = buf_copy (can->buf_stack[--(can -> buf_pointer)], can->sizeX, can->sizeY);
 	}
 }
 
@@ -1310,25 +1084,14 @@ void wait(double secs) {
 	usleep(1000000 * secs);
 }
 
-/*
-double dist_point_line (canvas* can, vec A, vec B) {
-	double tangent = (B.val[1] - A.val[1]) / (B.val[0] - A.val[0]);
-	double normal = - 1 / slope;
-}
-*/
-
 int main () {
 	/*
-
 	solution to the keyboard loop problem:
 	1.	use a keyboard library, which directly parses the keyboard signals, this way I won't have to press Enter.
 	2.	use system("stty");
 	3.	learn to live with the fact that commands will not be displayed to the user as they type them.
 	4.	have one thread loop getch(), filling stdin, and a second thread parsing stdin with FILE functions.
 
-	solution to the buffer free()-ing problem:
-	1.	make sure all PIXELS are allocated with malloc, so they can all be freed at the end without invalid pointer error.
-	 
   	freeing memory:
 	1.	char* string = malloc(10);
 		free(string);
@@ -1346,32 +1109,19 @@ int main () {
 	2.	compute disstance from pixel to line.
 	3.	shading range = [R - (UNIT * 8)/2, R + (UNIT * 8)/2].
 	4.	color pixel.
+	this is too slow...
 	*/
 	//system("/bin/stty raw");
 	canvas* screen = canvas_new(FILL, FILL, 1.0, CLEAR, XTERM);
-
 	
-	/*
-	vec *square_points = vecs_from_func (-6, 6, 0.02, squared);
-	plot_vecs (can, square_points, c92);
-	
-	vec *sin_points = vecs_from_func (-6, 6, 0.02, sin);
-	plot_vecs (can, sin_points, c91);
-
-	vec *log_points = vecs_from_func (-6, 6, 0.02, log);
-	plot_vecs (can, log_points, c93);
-	
-	vec *sqrt_points = vecs_from_func (-6, 6, 0.02, sqrt);
-	plot_vecs (can, sqrt_points, c94);
-	*/
 
 	//plot_logo (can, 32, 8);
 
-/*
-todo:
- - parse inputs while updating the plot
- - update the canvas if inputs are received
-*/
+	/*
+	todo:
+	 - parse inputs while updating the plot
+	 - update the canvas if inputs are received
+	*/
 	char chars[10];
 	int charp = 0;
 	double time = 0;
@@ -1382,7 +1132,7 @@ todo:
 	// 3 threads - one handles the input, another does the plotting, and a third updates the canvas.
 
 	while(running && time < 100) {
-		canvas* can = canvas_new(screen->sizeX, screen->sizeY - 2, 4.0, CLEAR, XTERM);
+		canvas* can = canvas_new(screen->sizeX, screen->sizeY - 2, 4.0, DONT_CLEAR, XTERM);
 		//printf(" [[[%c, %s]]] ", can->colordict[0]->colorID, can->colordict[0]->color);
 	
 		can->unit = 1.0;
@@ -1390,19 +1140,33 @@ todo:
 
 		//double A[2] = {0 + 4 * sin(time), 0 + cos(time)};
 		//vec vecA = vec_from_arr (A, 2);
+		vec *square_points = vecs_from_func (-6, 6, 0.02, squared);
+		plot_vecs (can, square_points, RED90);
+	
+		vec *sin_points = vecs_from_func (-6, 6, 0.02, sin);
+		plot_vecs (can, sin_points, BLUE);
+
+		vec *log_points = vecs_from_func (-6, 6, 0.02, log);
+		plot_vecs (can, log_points, PINK);
+	
+		vec *sqrt_points = vecs_from_func (-6, 6, 0.02, sqrt);
+		plot_vecs (can, sqrt_points, GREEN);
 
 
 
 		double D[2] = {-5,-5}, E[2] = {5, 5};
 		vec vecD = vec_from_arr (D, 2);
 		vec vecE = vec_from_arr (E, 2);
-		plot_line (can, vecD, vecE, YELLOW);
+		plot_line (can, vecD, vecE, RAND);
+		//plot_line (can, vecD, vecE, YELLOW);
 		vecD.val[0] += 1;
 		vecE.val[0] += 1;
-		plot_line (can, vecD, vecE, GREEN);
+		plot_line (can, vecD, vecE, RAND);
+		//plot_line (can, vecD, vecE, GREEN);
 		vecD.val[0] += 1;
 		vecE.val[0] += 1;
-		plot_line (can, vecD, vecE, PINK);
+		plot_line (can, vecD, vecE, RAND);
+		//plot_line (can, vecD, vecE, PINK);
 		vecD.val[0] += 1;
 		vecE.val[0] += 1;
 		plot_line (can, vecD, vecE, CYAN);
@@ -1439,7 +1203,6 @@ todo:
 		time += 0.2;
 
 		canvas_delete (can);
-		//free(pA);
 	}
 
 	canvas_delete (screen);
