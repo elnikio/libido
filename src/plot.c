@@ -1382,7 +1382,7 @@ todo:
 	// 3 threads - one handles the input, another does the plotting, and a third updates the canvas.
 
 	while(running && time < 100) {
-		canvas* can = canvas_new(screen->sizeX, screen->sizeY - 2, 4.0, DONT_CLEAR, XTERM);
+		canvas* can = canvas_new(screen->sizeX, screen->sizeY - 2, 4.0, CLEAR, XTERM);
 		//printf(" [[[%c, %s]]] ", can->colordict[0]->colorID, can->colordict[0]->color);
 	
 		can->unit = 1.0;
