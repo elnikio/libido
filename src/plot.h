@@ -184,7 +184,7 @@ int plot_string (
 void plot_vec (
 	canvas *can,
 	vec vector,
-	const char colorID
+	char colorID
 );
 
 void plot_line (

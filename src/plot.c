@@ -802,12 +802,6 @@ vec vec_from_point (canvas* can, point p) {
 	return vec;
 }
 
-void plot_vec (canvas* can, vec vector, const char colorID) {
-	point p = point_from_vec (can, vector);
-	plot_point(can, p[0], p[1], colorID);
-	free (p);
-}
-
 double point_vec_dist (canvas* can, vec vector) {
 	vec real = vec_from_const (0, 2);
 	real.val[0] = vector.val[0] * 8 / can -> unit;
@@ -822,14 +816,8 @@ double point_vec_dist (canvas* can, vec vector) {
 	return dist;
 }
 
-void plot_line (canvas *can, vec A, vec B, char colorID) {
-
-	if (colorID == RAND)
-		colorID = rand_c ();
-	double len = sqrt(pow(B.val[0] - A.val[0], 2) + pow(B.val[1] - A.val[1], 2));
-	for (double i = 0; i < 1; i += 1.0/(len / (can->unit)*8)) {
-		vec BsubA = vec_sub(B, A);
-		vec AaddBsubA = vec_add (A, vec_mul_const(BsubA, i));
+void plot_vec (canvas* can, vec vector, char colorID) {
+	point p = point_from_vec (can, vector);
 		if (
 			colorID == RED ||
 			colorID == GREEN ||
@@ -840,8 +828,8 @@ void plot_line (canvas *can, vec A, vec B, char colorID) {
 			colorID == WHITE
 		) {
 			char shade;
-			double dist = point_vec_dist (can, AaddBsubA);
-			point p = point_from_vec (can, AaddBsubA);
+			double dist = point_vec_dist (can, vector);
+			point p = point_from_vec (can, vector);
 			if (dist >= 0.000 && dist < 0.175) shade = L90;
 			if (dist >= 0.175 && dist < 0.350) shade = L80;
 			if (dist >= 0.350 && dist < 0.525) shade = L70;
@@ -851,141 +839,153 @@ void plot_line (canvas *can, vec A, vec B, char colorID) {
 				case RED:
 					switch (shade) {
 						case L90:
-							plot_vec (can, AaddBsubA, RED90);
+							colorID = RED90;
 							break;
 						case L80:
 							if (presentShade != L90)
-								plot_vec (can, AaddBsubA, RED80);
+								colorID = RED80;
 							break;
 						case L70:
 							if (presentShade != L90 && presentShade != L80)
-								plot_vec (can, AaddBsubA, RED70);
+								colorID = RED70;
 							break;
 						case L60:
 							if (presentShade != L90 && presentShade != L80 && presentShade != L70)
-								plot_vec (can, AaddBsubA, RED60);
+								colorID = RED60;
 							break;
 					}
 					break;
 				case GREEN:
 					switch (shade) {
 						case L90:
-							plot_vec (can, AaddBsubA, GREEN90);
+							colorID = GREEN90;
 							break;
 						case L80:
 							if (presentShade != L90)
-								plot_vec (can, AaddBsubA, GREEN80);
+								colorID = GREEN80;
 							break;
 						case L70:
 							if (presentShade != L90 && presentShade != L80)
-								plot_vec (can, AaddBsubA, GREEN70);
+								colorID = GREEN70;
 							break;
 						case L60:
 							if (presentShade != L90 && presentShade != L80 && presentShade != L70)
-								plot_vec (can, AaddBsubA, GREEN60);
+								colorID = GREEN60;
 							break;
 					}
 					break;
 				case YELLOW:
 					switch (shade) {
 						case L90:
-							plot_vec (can, AaddBsubA, YELLOW90);
+							colorID = YELLOW90;
 							break;
 						case L80:
 							if (presentShade != L90)
-								plot_vec (can, AaddBsubA, YELLOW80);
+								colorID = YELLOW80;
 							break;
 						case L70:
 							if (presentShade != L90 && presentShade != L80)
-								plot_vec (can, AaddBsubA, YELLOW70);
+								colorID = YELLOW70;
 							break;
 						case L60:
 							if (presentShade != L90 && presentShade != L80 && presentShade != L70)
-								plot_vec (can, AaddBsubA, YELLOW60);
+								colorID = YELLOW60;
 							break;
 					}
 					break;
 				case BLUE:
 					switch (shade) {
 						case L90:
-							plot_vec (can, AaddBsubA, BLUE90);
+							colorID = BLUE90;
 							break;
 						case L80:
 							if (presentShade != L90)
-								plot_vec (can, AaddBsubA, BLUE80);
+								colorID = BLUE80;
 							break;
 						case L70:
 							if (presentShade != L90 && presentShade != L80)
-								plot_vec (can, AaddBsubA, BLUE70);
+								colorID = BLUE70;
 							break;
 						case L60:
 							if (presentShade != L90 && presentShade != L80 && presentShade != L70)
-								plot_vec (can, AaddBsubA, BLUE60);
+								colorID = BLUE60;
 							break;
 					}
 					break;
 				case PINK:
 					switch (shade) {
 						case L90:
-							plot_vec (can, AaddBsubA, PINK90);
+							colorID = PINK90;
 							break;
 						case L80:
 							if (presentShade != L90)
-								plot_vec (can, AaddBsubA, PINK80);
+								colorID = PINK80;
 							break;
 						case L70:
 							if (presentShade != L90 && presentShade != L80)
-								plot_vec (can, AaddBsubA, PINK70);
+								colorID = PINK70;
 							break;
 						case L60:
 							if (presentShade != L90 && presentShade != L80 && presentShade != L70)
-								plot_vec (can, AaddBsubA, PINK60);
+								colorID = PINK60;
 							break;
 					}
 					break;
 				case CYAN:
 					switch (shade) {
 						case L90:
-							plot_vec (can, AaddBsubA, CYAN90);
+							colorID = CYAN90;
 							break;
 						case L80:
 							if (presentShade != L90)
-								plot_vec (can, AaddBsubA, CYAN80);
+								colorID = CYAN80;
 							break;
 						case L70:
 							if (presentShade != L90 && presentShade != L80)
-								plot_vec (can, AaddBsubA, CYAN70);
+								colorID = CYAN70;
 							break;
 						case L60:
 							if (presentShade != L90 && presentShade != L80 && presentShade != L70)
-								plot_vec (can, AaddBsubA, CYAN60);
+								colorID = CYAN60;
 							break;
 					}
 					break;
 				case WHITE:
 					switch (shade) {
 						case L90:
-							plot_vec (can, AaddBsubA, WHITE90);
+							colorID = WHITE90;
 							break;
 						case L80:
 							if (presentShade != L90)
-								plot_vec (can, AaddBsubA, WHITE80);
+								colorID = WHITE80;
 							break;
 						case L70:
 							if (presentShade != L90 && presentShade != L80)
-								plot_vec (can, AaddBsubA, WHITE70);
+								colorID = WHITE70;
 							break;
 						case L60:
 							if (presentShade != L90 && presentShade != L80 && presentShade != L70)
-								plot_vec (can, AaddBsubA, WHITE60);
+								colorID = WHITE60;
 							break;
 					}
 					break;
 			}
 		}
-		else {
-			plot_vec (can, AaddBsubA, colorID);
-		}
+
+	plot_point(can, p[0], p[1], colorID);
+	free (p);
+}
+
+
+void plot_line (canvas *can, vec A, vec B, char colorID) {
+
+	if (colorID == RAND)
+		colorID = rand_c ();
+	double len = sqrt(pow(B.val[0] - A.val[0], 2) + pow(B.val[1] - A.val[1], 2));
+	for (double i = 0; i < 1; i += 1.0/(len / (can->unit)*8)) {
+		vec BsubA = vec_sub(B, A);
+		vec AaddBsubA = vec_add (A, vec_mul_const(BsubA, i));
+		plot_vec (can, AaddBsubA, colorID);
 		free(AaddBsubA.val);
 		free(BsubA.val);
 	}
