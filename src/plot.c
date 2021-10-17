@@ -1,20 +1,54 @@
 // camera = (width, height, distance)
 #include "plot.h"
-#include "plot_templates.h"
-#include "string.h"
-#include "vector.h"
-#include <pthread.h>
-#include "colors.h"
-#include <ncurses.h>
-#include <unistd.h>
-#include <math.h>
+
+static const char* c1 = "\033[0;1m";
+static const char* c2 = "\033[0;2m";
+static const char* c3 = "\033[0;3m";
+static const char* c4 = "\033[0;4m";
+static const char* c7 = "\033[0;7m";
+static const char* c8 = "\033[0;8m";
+static const char* c9 = "\033[0;9m";
+static const char* c30 = "\033[0;30m";
+static const char* c31 = "\033[0;31m";
+static const char* c32 = "\033[0;32m";
+static const char* c33 = "\033[0;33m";
+static const char* c34 = "\033[0;34m";
+static const char* c35 = "\033[0;35m";
+static const char* c36 = "\033[0;36m";
+static const char* c37 = "\033[0;37m";
+static const char* c40 = "\033[0;40m";
+static const char* c41 = "\033[0;41m";
+static const char* c42 = "\033[0;42m";
+static const char* c43 = "\033[0;43m";
+static const char* c44 = "\033[0;44m";
+static const char* c45 = "\033[0;45m";
+static const char* c46 = "\033[0;46m";
+static const char* c47 = "\033[0;47m";
+static const char* c90 = "\033[0;90m";
+static const char* c91 = "\033[0;91m";
+static const char* c92 = "\033[0;92m";
+static const char* c93 = "\033[0;93m";
+static const char* c94 = "\033[0;94m";
+static const char* c95 = "\033[0;95m";
+static const char* c96 = "\033[0;96m";
+static const char* c97 = "\033[0;97m";
+static const char* c100 = "\033[0;100m";
+static const char* c101 = "\033[0;101m";
+static const char* c102 = "\033[0;102m";
+static const char* c103 = "\033[0;103m";
+static const char* c104 = "\033[0;104m";
+static const char* c105 = "\033[0;105m";
+static const char* c106 = "\033[0;106m";
+static const char* c107 = "\033[0;107m";
+static const char* c109 = "\033[0;109m";
+static const char* cran = "R";
 
 typedef struct _size {
 	int X;
 	int Y;
 } size;
 
-size screen_size () {	
+size screen_size () {
 	struct winsize ws;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
 	ws = window_size();
@@ -24,14 +58,6 @@ size screen_size () {
 	scr_sz.Y = ws.ws_row;
 	return scr_sz;
 }
-
-enum _palettes {
-	XTERM,
-	GNOME,
-	LINUX,
-	RXVT,
-	SLRZD
-};
 
 /*
 todo:
@@ -281,7 +307,7 @@ canvas *canvas_new(int sizeX, int sizeY, double unit, int clear, char PALETTE) {
 		sizeX = ws.ws_col;
 	}
 	if (sizeY == FILL) {
-		sizeY = ws.ws_row;
+		sizeY = ws.ws_row - 2;
 	}
 
 	buffer buf = malloc(sizeY * sizeof(pixel*));
@@ -539,7 +565,7 @@ void canvas_flip_vertical(canvas *can) {
 }
 
 void display(canvas* can) {
-	fflush(stdout);
+	//fflush(stdout);
 	if (can->clear == 1)
 		system("clear");
 	
@@ -1013,9 +1039,9 @@ void plot_vecs (canvas *can, vec* vectors, const char colorID) {
 		plot_vec (can, vectors[i], colorID);
 }
 
-double squared (double x) {
-	return x * x;
-}
+//double squared (double x) {
+//	return x * x;
+//}
 
 int canvas_ctl (canvas *can, char* input) {
 /*
@@ -1084,8 +1110,8 @@ void wait(double secs) {
 	usleep(1000000 * secs);
 }
 
+/*
 int main () {
-	/*
 	solution to the keyboard loop problem:
 	1.	use a keyboard library, which directly parses the keyboard signals, this way I won't have to press Enter.
 	2.	use system("stty");
@@ -1110,18 +1136,14 @@ int main () {
 	3.	shading range = [R - (UNIT * 8)/2, R + (UNIT * 8)/2].
 	4.	color pixel.
 	this is too slow...
-	*/
 	//system("/bin/stty raw");
-	canvas* screen = canvas_new(FILL, FILL, 1.0, CLEAR, XTERM);
 	
 
 	//plot_logo (can, 32, 8);
 
-	/*
 	todo:
 	 - parse inputs while updating the plot
 	 - update the canvas if inputs are received
-	*/
 	char chars[10];
 	int charp = 0;
 	double time = 0;
@@ -1132,7 +1154,7 @@ int main () {
 	// 3 threads - one handles the input, another does the plotting, and a third updates the canvas.
 
 	while(running && time < 100) {
-		canvas* can = canvas_new(screen->sizeX, screen->sizeY - 2, 4.0, DONT_CLEAR, XTERM);
+		canvas* can = canvas_new(FILL, FILL, 4.0, DONT_CLEAR, XTERM);
 		//printf(" [[[%c, %s]]] ", can->colordict[0]->colorID, can->colordict[0]->color);
 	
 		can->unit = 1.0;
@@ -1198,20 +1220,17 @@ int main () {
 		//get_point_color (can, 16, 8);
 
 		display (can);
-		fflush(stdout);
+		//fflush(stdout);
 		wait(0.05);
 		time += 0.2;
 
 		canvas_delete (can);
 	}
 
-	canvas_delete (screen);
-
 	//void* return_from_thread;
 
 	//pthread_join(ctl_thread, &return_from_thread);
 	//int retval;
-	/*
 	for (double t = 0; t < 25; t += 0.05) {
 		double x = t/4 * sin(t);
 		double y = t/4 * cos(t);
@@ -1223,12 +1242,130 @@ int main () {
 		//canvas_update (getch());
 		display (can);
 		vec_print_fancy(A, "A", 4, c32);
-		fflush(stdout);
+		//fflush(stdout);
 		usleep(25000);
 	}
-	*/
 	//system("/bin/stty cooked");
 	//
 	return 0;
+}
+*/
+
+void plot_palette (canvas* can, int x, int y) {
+
+		char* label = "palette:\0";
+		plot_string(can, x, y + 40, c4, label);
+
+		//GRAY
+		plot_point(can, x, y + 5, GRAY60); // 60
+		plot_point(can, x, y + 6, GRAY70); // 70
+		plot_point(can, x, y + 7, GRAY60); // 80
+		plot_point(can, x, y + 8, GRAY90); // 90
+		char* r24930 = "GRAY60\0"; // 60
+		char* r44930 = "GRAY70\0"; // 85
+		char* r24990 = "GRAY80\0"; // 65
+		char* r44990 = "GRAY90\0"; // 95
+		plot_string(can, x + 1, y + 5, c2, r24930);
+		plot_string(can, x + 1, y + 6, c2, r44930);
+		plot_string(can, x + 1, y + 7, c2, r24990);
+		plot_string(can, x + 1, y + 8, c2, r44990);
+
+		//RED
+		plot_point(can, x, y, RED60);
+		plot_point(can, x, y + 1, RED70);
+		plot_point(can, x, y + 2, RED80);
+		plot_point(can, x, y + 3, RED90);
+		char* r24931 = "RED60\0"; // 30
+		char* r24991 = "RED70\0"; // 35
+		char* r44931 = "RED80\0"; // 45
+		char* r44991 = "RED90\0"; // 50
+		plot_string(can, x + 1, y, c2, r24931);
+		plot_string(can, x + 1, y + 1, c2, r24991);
+		plot_string(can, x + 1, y + 2, c2, r44931);
+		plot_string(can, x + 1, y + 3, c2, r44991);
+
+		//GREEN
+		plot_point(can, x, y + 10, GREEN60);
+		plot_point(can, x, y + 11, GREEN70);
+		plot_point(can, x, y + 12, GREEN80);
+		plot_point(can, x, y + 13, GREEN90);
+		char* r24932 = "GREEN60\0"; // 40
+		char* r24992 = "GREEN70\0"; // 55
+		char* r44932 = "GREEN80\0"; // 60
+		char* r44992 = "GREEN90\0"; // 80
+		plot_string(can, x + 1, y + 10, c2, r24932);
+		plot_string(can, x + 1, y + 11, c2, r24992);
+		plot_string(can, x + 1, y + 12, c2, r44932);
+		plot_string(can, x + 1, y + 13, c2, r44992);
+
+		//YELLOW
+		plot_point(can, x, y + 15, YELLOW60);
+		plot_point(can, x, y + 16, YELLOW70);
+		plot_point(can, x, y + 17, YELLOW80);
+		plot_point(can, x, y + 18, YELLOW90);
+		char* r24933 = "YELLOW60\0"; // 45
+		char* r24993 = "YELLOW70\0"; // 65
+		char* r44933 = "YELLOW80\0"; // 70
+		char* r44993 = "YELLOW90\0"; // 90
+		plot_string(can, x + 1, y + 15, c2, r24933);
+		plot_string(can, x + 1, y + 16, c2, r24993);
+		plot_string(can, x + 1, y + 17, c2, r44933);
+		plot_string(can, x + 1, y + 18, c2, r44993);
+
+		//BLUE
+		plot_point(can, x, y + 20, BLUE60);
+		plot_point(can, x, y + 21, BLUE70);
+		plot_point(can, x, y + 22, BLUE80);
+		plot_point(can, x, y + 23, BLUE90);
+		char* r24934 = "BLUE60\0"; // 25
+		char* r44934 = "BLUE70\0"; // 40
+		char* r24994 = "BLUE80\0"; // 40
+		char* r44994 = "BLUE90\0"; // 60
+		plot_string(can, x + 1, y + 20, c2, r24934);
+		plot_string(can, x + 1, y + 21, c2, r44934);
+		plot_string(can, x + 1, y + 22, c2, r24994);
+		plot_string(can, x + 1, y + 23, c2, r44994);
+
+		//PINK
+		plot_point(can, x, y + 25, PINK60);
+		plot_point(can, x, y + 26, PINK70);
+		plot_point(can, x, y + 27, PINK80);
+		plot_point(can, x, y + 28, PINK90);
+		char* r24935 = "PINK60\0"; // 25
+		char* r24995 = "PINK70\0"; // 40
+		char* r44935 = "PINK80\0"; // 40
+		char* r44995 = "PINK90\0"; // 60
+		plot_string(can, x + 1, y + 25, c2, r24935);
+		plot_string(can, x + 1, y + 26, c2, r24995);
+		plot_string(can, x + 1, y + 27, c2, r44935);
+		plot_string(can, x + 1, y + 28, c2, r44995);
+
+		//CYAN
+		plot_point(can, x, y + 30, CYAN60);
+		plot_point(can, x, y + 31, CYAN70);
+		plot_point(can, x, y + 32, CYAN80);
+		plot_point(can, x, y + 33, CYAN90);
+		char* r24936 = "CYAN60\0"; // 40
+		char* r24996 = "CYAN70\0"; // 60
+		char* r44936 = "CYAN80\0"; // 60
+		char* r44996 = "CYAN90\0"; // 80
+		plot_string(can, x + 1, y + 30, c2, r24936);
+		plot_string(can, x + 1, y + 31, c2, r24996);
+		plot_string(can, x + 1, y + 32, c2, r44936);
+		plot_string(can, x + 1, y + 33, c2, r44996);
+
+		//WHITE
+		plot_point(can, x, y + 35, WHITE60);
+		plot_point(can, x, y + 36, WHITE70);
+		plot_point(can, x, y + 37, WHITE80);
+		plot_point(can, x, y + 38, WHITE90);
+		char* r24937 = "WHITE60\0"; // 60
+		char* r24997 = "WHITE70\0"; // 65
+		char* r44937 = "WHITE80\0"; // 85
+		char* r44997 = "WHITE90\0"; // 95
+		plot_string(can, x + 1, y + 35, c2, r24937);
+		plot_string(can, x + 1, y + 36, c2, r24997);
+		plot_string(can, x + 1, y + 37, c2, r44937);
+		plot_string(can, x + 1, y + 38, c2, r44997);
 }
 

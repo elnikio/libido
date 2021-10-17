@@ -1,9 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "string.h"
 #include <sys/ioctl.h>
+#include <pthread.h>
+#include <ncurses.h>
+#include <math.h>
 #include <unistd.h>
 #include "vector.h"
+#include "colors.h"
 
 #define PIXSIZE 32
 #define FILL 0
@@ -16,6 +21,14 @@
 typedef int* point;
 typedef char*** buffer;
 typedef char* pixel;
+
+enum _palettes {
+	XTERM,
+	GNOME,
+	LINUX,
+	RXVT,
+	SLRZD
+};
 
 typedef struct palette {
 	char* red90;
@@ -92,7 +105,7 @@ canvas *canvas_new (
 	int sizeY,
 	double unit,
 	int clear,
-	char palette
+	char PALETTE
 );
 
 void canvas_delete (
@@ -220,6 +233,8 @@ void plot_axes (
 	int originX,
 	int originY
 );
+
+void plot_palette (canvas* can, int x, int y);
 
 // End
 #define PLOT
