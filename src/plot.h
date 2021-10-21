@@ -207,6 +207,13 @@ void plot_line (
 	const char colorID
 );
 
+void plot_lineDDA (
+	canvas *can,
+	point A,
+	point B,
+	char colorID
+);
+
 vec* vecs_from_func (
 	double min,
 	double max,

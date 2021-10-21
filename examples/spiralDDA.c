@@ -14,23 +14,18 @@ int main () {
 	// Plot the vector plane axes, repositioning the vector plane origin (previously at {0, 0}) to the center of the screen:
 	plot_axes(can, can->sizeX/2, can->sizeY/2);
 	
-	double x1 = 0;
-	double y1 = 0;
-	double point1[2] = {x1, y1};
-	vec A = vec_from_arr (point1, 2);
+	int x1 = 0;
+	int y1 = 0;
+	int p1[2] = {x1, y1};
 
 	
 	for (double t = 0; t < 25; t += 0.05) {
-
-		double x2 = t/4 * sin(t);
-		double y2 = t/4 * cos(t);
-		double point2[2] = {x2, y2};
-		vec B = vec_from_arr (point2, 2);
-		plot_line (can, A, B, GREEN);
-		//plot_lineDDA (can, A, B, GREEN);
+		int x2 = (int)(t/4 * sin(t) * 8);
+		int y2 = (int)(t/4 * cos(t) * 4);
+		int p2[2] = {x2, y2};
+		plot_lineDDA (can, p1, p2, GREEN);
 		system("clear");
 		display (can);
-		vec_print_fancy(A, "A", 4, RAND);
 		fflush(stdout);
 		usleep(25000);
 		//A.val = B.val;

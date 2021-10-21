@@ -1,4 +1,5 @@
 
-examples: spiral.c pendulum.c
-	gcc spiral.c -g -lido -lm -lncurses -o spiral -L/usr/include/libido -pthread -Wall
-	gcc pendulum.c -g -lido -lm -o pendulum -L/usr/include/libido -pthread -lncurses -Wall
+examples: spiral.c pendulum.c spiralDDA.c
+	gcc spiral.c -g -lido -o spiral -Wall -L/usr/include/libido -lm -lncurses -pthread
+	gcc spiralDDA.c -g -lido -o spiralDDA -Wall -L/usr/include/libido -lm -lncurses -pthread
+	#gcc pendulum.c -g -lido -lm -o pendulum -L/usr/include/libido -pthread -lncurses -Wall

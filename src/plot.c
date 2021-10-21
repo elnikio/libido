@@ -43,6 +43,17 @@ static const char* c107 = "\033[0;107m";
 static const char* c109 = "\033[0;109m";
 static const char* cran = "R";
 
+/*
+todo:
+ - remove the 'plot' from all funcitons, except for one function plot().
+ - what were previously plotting functions now return 'image' objects.
+ - image objects can be manipulated by passing them through various functioins, before plotting them.
+ - the plot() function takes a null-terminated list of objects to plot.
+ - add an export() function to save canvas as a .jpeg.
+ - this is turning into a low-res image processing library.
+ - merge() function to combine to image objects.
+*/
+
 typedef struct _size {
 	int X;
 	int Y;
@@ -1002,13 +1013,12 @@ void plot_vec (canvas* can, vec vector, char colorID) {
 	free (p);
 }
 
-
 void plot_line (canvas *can, vec A, vec B, char colorID) {
 
 	if (colorID == RAND)
 		colorID = rand_c ();
 	double len = sqrt(pow(B.val[0] - A.val[0], 2) + pow(B.val[1] - A.val[1], 2));
-	for (double i = 0; i < 1; i += 1.0/(len / (can->unit)*8)) {
+	for (double i = 0; i < 1; i += 1/(len / (can->unit)*8.0)) {
 		vec BsubA = vec_sub(B, A);
 		vec AaddBsubA = vec_add (A, vec_mul_const(BsubA, i));
 		plot_vec (can, AaddBsubA, colorID);
@@ -1016,6 +1026,51 @@ void plot_line (canvas *can, vec A, vec B, char colorID) {
 		free(BsubA.val);
 	}
 	plot_vec (can, A, colorID);
+}
+
+/*
+void plot_line (canvas *can, vec A, vec B, char colorID) {
+
+	if (colorID == RAND)
+		colorID = rand_c ();
+	//double len = sqrt(pow(B.val[0] - A.val[0], 2) + pow(B.val[1] - A.val[1], 2));
+
+	double dX = B.val[0] - A.val[0];
+	double dY = B.val[1] - A.val[1];
+	double d[] = {dX, dY};
+
+	int steps = (dX > dY) ? abs(dX) * 12: abs(dY) * 6;
+	double incX = dX / steps;
+	double incY = dY / steps;
+	double inc[] = {incX, incY};
+
+	for (int i = 0; i <= steps; i += 1) {
+		double pI[] = {incX, incY};
+		vec I = vec_from_arr (pI, 2);
+		I = vec_mul_const (I, i);
+		vec AaddD = vec_add (A, I);
+		plot_vec (can, AaddD, colorID);
+	}
+}
+
+*/
+void plot_lineDDA (canvas *can, point A, point B, char colorID) {
+
+	if (colorID == RAND)
+		colorID = rand_c ();
+
+	int dX = B[0] - A[0];
+	int dY = B[1] - A[1];
+	int d[] = {dX, dY};
+
+	int steps = (dX > dY) ? dX: dY;
+	double incX = dX / steps;
+	double incY = dY / steps;
+	double inc[] = {incX, incY};
+
+	for (int i = 0; i <= steps; i += 1) {
+		plot_point (can, abs(A[0] + i * incX), abs(A[1] + i * incY), colorID);
+	}
 }
 
 vec* vecs_from_func (double min, double max, double inc, double (*function)(double)) {
@@ -1109,6 +1164,23 @@ void* ctl_loop (void* arg) {
 void wait(double secs) {
 	usleep(1000000 * secs);
 }
+
+/*
+int main () {
+	canvas* can = canvas_new (FILL, FILL, 1.0, DONT_CLEAR, XTERM);
+	plot_axes (can, can->sizeX/2, can->sizeY/2);
+	double Ax = 0;
+	double Ay = 0;
+	double Bx = 3;
+	double By = 4;
+	double pA [2] = {Ax, Ay};
+	double pB [2] = {Bx, By};
+	vec A = vec_from_arr (pA, 2);
+	vec B = vec_from_arr (pB, 2);
+	plot_line (can, A, B, GREEN);
+	display (can);
+}
+*/
 
 /*
 int main () {

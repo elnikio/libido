@@ -16,9 +16,9 @@ int main() {
 	double time = 0;
 	char running = 1;
 
-	canvas* screen = canvas_new (FILL, FILL, 1.0, CLEAR);
+	canvas* screen = canvas_new (FILL, FILL, 1.0, CLEAR, XTERM);
 	while(running) {
-		canvas* can = canvas_new (screen -> sizeX, screen ->sizeY - 2, 4.0, CLEAR);
+		canvas* can = canvas_new (screen -> sizeX, screen ->sizeY - 2, 4.0, CLEAR, XTERM);
 
 		can -> unit = 1.0;
 		plot_axes (can, can -> sizeX/2, screen -> sizeY/2);
