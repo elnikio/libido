@@ -1054,7 +1054,7 @@ void plot_line (canvas *can, vec A, vec B, char colorID) {
 }
 
 */
-void plot_lineDDA (canvas *can, point A, point B, char colorID) {
+void plot_lineDDA (canvas *can, int* A, int* B, char colorID) {
 
 	if (colorID == RAND)
 		colorID = rand_c ();
@@ -1093,10 +1093,6 @@ void plot_vecs (canvas *can, vec* vectors, const char colorID) {
 	for (int i = 0; vectors[i].val != NULL; i ++)
 		plot_vec (can, vectors[i], colorID);
 }
-
-//double squared (double x) {
-//	return x * x;
-//}
 
 int canvas_ctl (canvas *can, char* input) {
 /*

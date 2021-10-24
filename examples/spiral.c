@@ -16,23 +16,25 @@ int main () {
 	
 	double x1 = 0;
 	double y1 = 0;
-	double point1[2] = {x1, y1};
-	vec A = vec_from_arr (point1, 2);
+	double arr1[2] = {x1, y1};
+	int point1[2] = {(int) x1, (int) y1};
+	vec A = vec_from_arr (arr1, 2);
 
 	
-	for (double t = 0; t < 25; t += 0.05) {
+	for (double t = 0.05; t < 25; t += 0.05) {
 
-		double x2 = t/4 * sin(t);
-		double y2 = t/4 * cos(t);
-		double point2[2] = {x2, y2};
-		vec B = vec_from_arr (point2, 2);
+		double x2 = t * sin(t);
+		double y2 = t * cos(t);
+		double arr2[2] = {x2, y2};
+		int point2[2] = {(int) x2, (int) y2};
+		vec B = vec_from_arr (arr2, 2);
 		plot_line (can, A, B, GREEN);
-		//plot_lineDDA (can, A, B, GREEN);
+		printf("point1 = [%d, %d], point2 = [%d, %d].\n", point1[0], point1[1], point2[0], point2[1]);
+		//plot_lineDDA (can, point1, point2, GREEN);
 		system("clear");
 		display (can);
-		vec_print_fancy(A, "A", 4, RAND);
+		vec_print_fancy(B, "B", 4, RAND);
 		fflush(stdout);
 		usleep(25000);
-		//A.val = B.val;
 	}
 }
