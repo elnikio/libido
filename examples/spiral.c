@@ -21,7 +21,7 @@ int main () {
 	vec A = vec_from_arr (arr1, 2);
 
 	
-	for (double t = 0.05; t < 25; t += 0.05) {
+	for (double t = 0.05; t < 25; t += 0.01) {
 
 		double x2 = t * sin(t);
 		double y2 = t * cos(t);
