@@ -22,6 +22,8 @@ typedef int* point;
 typedef char*** buffer;
 typedef char* pixel;
 
+void wait(double secs);
+
 enum _palettes {
 	XTERM,
 	GNOME,

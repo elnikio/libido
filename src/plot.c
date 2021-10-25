@@ -810,14 +810,14 @@ point point_from_vec (canvas* can, vec vector) {
 	point p = malloc(sizeof(int) * 2);
 
 	if (vector.val[0] >= 0) {
-		double frac = vector.val[0] - (int)vector.val[0];
+		double frac = temp.val[0] - (int)temp.val[0];
 		temp.val[0] = (int)temp.val[0];
 		if (frac >= 0.5)
 			temp.val[0] += 1;
 	}
 
 	if (vector.val[1] < 0) {
-		double frac = vector.val[1] - (int)vector.val[1];
+		double frac = temp.val[1] - (int)temp.val[1];
 		temp.val[1] = (int)temp.val[1];
 		if (frac < -0.5)
 			temp.val[1] -= 1;
